@@ -1,0 +1,15 @@
+# Éditeurs
+.vscode/
+.idea/
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Dépendances et journaux
+vendor/
+node_modules/
+*.log
+
+# Fichiers locaux
+.env
