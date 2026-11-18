@@ -4,7 +4,11 @@ class config
     private static $pdo = null;
     public static function getConnexion(){
         if (!isset(self::$pdo)) {
+<<<<<<< HEAD
+            $env = @parse_ini_file('/.env');
+=======
             $env = @parse_ini_file(__DIR__ . '/.env');
+>>>>>>> c34dbc33a1c79af302f697d3c872830dea19a805
 
             $host = $env['DB_HOST'];
             $dbname = $env['DB_NAME'];
