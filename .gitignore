@@ -7,7 +7,7 @@
 Thumbs.db
 
 # Dépendances et journaux
-vendor/
+
 node_modules/
 *.log
 
