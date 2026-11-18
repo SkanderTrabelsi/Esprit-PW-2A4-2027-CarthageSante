@@ -1,0 +1,66 @@
+-- 1. Table Mère Utilisateurs
+CREATE TABLE utilisateurs (
+    id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    mot_de_passe_hash VARCHAR(255) NOT NULL,
+    telephone VARCHAR(20), 
+    photo_profil_url VARCHAR(255),
+    role ENUM('admin', 'client', 'medecin', 'pharmacie') NOT NULL,
+    statut ENUM('actif', 'en_attente', 'suspendu') DEFAULT 'actif',
+    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Table Administrateur
+CREATE TABLE admin (
+    id_admin INT AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur INT UNIQUE NOT NULL,
+    niveau_acces ENUM('super', 'moderateur') DEFAULT 'moderateur',
+    CONSTRAINT fk_admin_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE
+);
+
+-- 3. Table Medecins
+CREATE TABLE medecins (
+    id_medecin INT AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur INT UNIQUE NOT NULL,
+    specialite VARCHAR(100) NOT NULL,
+    num_ordre_medecin VARCHAR(50) UNIQUE NOT NULL,
+    adresse_cabinet VARCHAR(255),
+    ville VARCHAR(100),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    horaires_travail VARCHAR(255),
+    teleconsultation_active TINYINT(1) DEFAULT 0,
+    is_valide TINYINT(1) DEFAULT 0,
+    CONSTRAINT fk_medecin_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE
+);
+
+-- 4. Table Pharmacies
+CREATE TABLE pharmacies (
+    id_pharmacie INT AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur INT UNIQUE NOT NULL,
+    nom_officine VARCHAR(150) NOT NULL,
+    num_autorisation VARCHAR(50) UNIQUE NOT NULL,
+    adresse VARCHAR(255),
+    ville VARCHAR(100),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    horaires_ouverture VARCHAR(255),
+    type_ouverture ENUM('jour', 'nuit') DEFAULT 'jour',
+    est_de_garde TINYINT(1) DEFAULT 0,
+    is_valide TINYINT(1) DEFAULT 0,
+    CONSTRAINT fk_pharmacie_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE
+);
+
+-- 5. Table Profils (Famille / Patients)
+CREATE TABLE profils (
+    id_profil INT AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur INT NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    date_naissance DATE,
+    genre ENUM('M', 'F'),
+    lien_parente VARCHAR(50) DEFAULT 'Moi-même',
+    groupe_sanguin VARCHAR(10),
+    photo_url VARCHAR(255),
+    CONSTRAINT fk_profil_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE
+);
