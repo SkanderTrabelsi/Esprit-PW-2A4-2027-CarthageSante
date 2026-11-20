@@ -4,7 +4,7 @@ $currentPage = "about";
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <?php require_once './includes/head.php'; ?>
 

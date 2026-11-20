@@ -39,7 +39,8 @@ function navActive($page, $currentPage) {
     <nav class="mt-2" aria-label="Main navigation">
       <!--begin::Sidebar Menu-->
       <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" data-accordion="false" id="navigation">
-        <li class="nav-item menu-open">
+        <!--begin: dashboard-->
+        <li class="nav-item">
           <a href="#" class="nav-link active">
             <i class="nav-icon bi bi-speedometer"></i>
             <p>
@@ -63,6 +64,7 @@ function navActive($page, $currentPage) {
           </ul>
         </li>
         <li class="nav-header">PAGES</li>
+        <!--begin: users-->
         <li class="nav-item">
           <a href="#" class="nav-link">
             <i class="nav-icon bi bi-people"></i>
@@ -72,15 +74,22 @@ function navActive($page, $currentPage) {
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="./index.html" class="nav-link active">
+              <a href="liste_user.php" class="nav-link active">
                 <i class="nav-icon bi bi-circle"></i>
                 <p>Liste des utilisateurs</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="./index2.html" class="nav-link">
+              <a href="add_user.php" class="nav-link">
                 <i class="nav-icon bi bi-circle"></i>
-                <p>Ajouter un utilisateurs</p>
+                <p>Ajouter un utilisateur</p>
+              </a>
+            </li>
+            </li>
+            <li class="nav-item">
+              <a href="demnd_pro.php" class="nav-link">
+                <i class="nav-icon bi bi-circle"></i>
+                <p>Demande comptes pro</p>
               </a>
             </li>
           </ul>
