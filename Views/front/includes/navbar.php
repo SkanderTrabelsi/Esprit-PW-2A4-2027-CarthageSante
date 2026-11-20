@@ -24,15 +24,15 @@ if (!function_exists('navActive')) {
                     <li><a href="index.php" class="<?php echo navActive('index', $currentPage); ?>">Home</a></li>
                     <li><a href="about.php" class="<?php echo navActive('about', $currentPage); ?>">About</a></li>
                     <li><a href="404.php" class="<?php echo navActive('404', $currentPage); ?>">404</a></li>
-                    <li><a href="page_vierge.php" class="<?php echo navActive('page_vierge', $currentPage); ?>">Page vierge</a></li>
                     <li class="dropdown">
                         <a href="#">
-                            <span>Dropdown</span>
+                            <span>Gest utilisateurs</span>
                             <i class="bi bi-chevron-down toggle-dropdown"></i>
                         </a>
                         <ul>
-                            <li><a href="#">Dropdown 1</a></li>
-                            <li><a href="#">Dropdown 2</a></li>
+                            <li><a href="login.php" class="<?php echo navActive('login', $currentPage); ?>">Se Connecter</a></li>
+                            <li><a href="register.php" class="<?php echo navActive('register', $currentPage); ?>">Sinscrire</a></li>
+                            <li><a href="forgot-password.php" class="<?php echo navActive('mpds oublier', $currentPage); ?>">Mdp oubliee</a></li>
                         </ul>
                     </li>
                     <li><a href="contact.php" class="<?php echo navActive('contact', $currentPage); ?>">Contact</a></li>
