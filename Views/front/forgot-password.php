@@ -20,10 +20,11 @@ $currentPage = "forgot-password";
                     Vous avez oublié votre mot de passe ? Ici, vous pouvez facilement obtenir un nouveau mot de passe.
                 </p>
 
-                <form action="../examples/login.html" method="post">
+                <form action="" method="post" id="formu">
                     <label class="visually-hidden" for="forgotEmail">Email</label>
+                    <span class="err "></span>
                     <div class="input-group mb-3">
-                        <input id="forgotEmail" name="email" type="email" class="form-control" placeholder="Email" />
+                        <input id="forgotEmail" name="email" type="text" class="form-control" placeholder="Email" />
                         <div class="input-group-text">
                             <span class="bi bi-envelope"></span>
                         </div>
@@ -52,6 +53,7 @@ $currentPage = "forgot-password";
 
 
     <?php require_once './includes/scripts.php'; ?>
+    <script src="../assets/js/forg-pasw.js"></script>
 
 </body>
 

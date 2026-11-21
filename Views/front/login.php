@@ -6,7 +6,7 @@ $currentPage = "login";
 <!DOCTYPE html>
 <html lang="fr">
 
-<?php require_once '../back/includes/head.php'; ?>
+<?php require_once '../back/includes/head.php'; ?>  
 
 <body class="login-page bg-body-secondary">
   <main class="login-box">
@@ -18,15 +18,17 @@ $currentPage = "login";
       <div class="card-body login-card-body">
         <p class="login-box-msg">Connecter vous a vptre compte</p>
 
-        <form action="" method="post">
+        <form action="" method="post" id="formu">
           <label class="visually-hidden" for="loginEmail">Email</label>
+          <span class="err "></span>
           <div class="input-group mb-3">
-            <input id="loginEmail" namr="email" type="email" class="form-control" placeholder="Email" />
+            <input id="loginEmail" name="email" type="text" class="form-control" placeholder="Email" />
             <div class="input-group-text">
               <span class="bi bi-envelope"></span>
             </div>
           </div>
           <label class="visually-hidden" for="loginPassword">MotDePasse</label>
+          <span class="err "></span>
           <div class="input-group mb-3">
             <input id="loginPassword" name="password" type="password" class="form-control" placeholder="Mot de passe" />
             <div class="input-group-text">

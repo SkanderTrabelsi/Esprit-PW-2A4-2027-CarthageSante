@@ -18,16 +18,19 @@ $currentPage = "register";
             <div class="card-body register-card-body">
                 <p class="register-box-msg">Cree un compte</p>
 
-                <form action="" method="post">
+                <form action="" method="post" id="formu">
                     <!-- champs en commun pour tous les utilisateurs -->
                         <label class="visually-hidden" for="registerName">Nom</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
+                            
                             <input id="registerName" name="nom" type="text" class="form-control" placeholder="Nom" />
                             <div class="input-group-text">
                                 <span class="bi bi-person"></span>
                             </div>
                         </div>
                         <label class="visually-hidden" for="registerPreNom">Prenom</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
                             <input id="registerPreNom" name="prenom" type="text" class="form-control" placeholder="Prenom" />
                             <div class="input-group-text">
@@ -35,27 +38,39 @@ $currentPage = "register";
                             </div>
                         </div>
                         <label class="visually-hidden" for="registerEmail">Email</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerEmail" name="email" type="email" class="form-control" placeholder="Email" />
+                            <input id="registerEmail" name="email" type="text" class="form-control" placeholder="Email" />
                             <div class="input-group-text">
                                 <span class="bi bi-envelope"></span>
                             </div>
                         </div>
                         <label class="visually-hidden" for="registerPassword">MotDePasse</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
                             <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe" />
                             <div class="input-group-text">
                                 <span class="bi bi-lock-fill"></span>
                             </div>
                         </div>
-                        <label class="visually-hidden" for="registerTelephone">Telephone</label>
+                        <label class="visually-hidden" for="registerCPassword">ConfirmerMotDePasse</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerTelephone" name="telephone" type="number" class="form-control" placeholder="Votre numero de telephone" />
+                            <input id="registerCPassword" name="Cpassword" type="password" class="form-control" placeholder="Confirmer le Mot De Passe" />
+                            <div class="input-group-text">
+                                <span class="bi bi-lock-fill"></span>
+                            </div>
+                        </div>
+                        <label class="visually-hidden" for="registerTelephone">Telephone</label>
+                        <span class="err "></span>
+                        <div class="input-group mb-3">
+                            <input id="registerTelephone" name="telephone" type="text" class="form-control" placeholder="Votre numero de telephone" />
                             <div class="input-group-text">
                                 <span class="bi bi-phone"></span>
                             </div>
                         </div>
                         <label class="visually-hidden" for="registerPhoto">photoDeProfil</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
                             <input id="registerPhoto" name="photo" type="file" class="form-control" placeholder="photo de profil" />
                             <div class="input-group-text">
@@ -63,6 +78,7 @@ $currentPage = "register";
                             </div>
                         </div>
                         <label class="visually-hidden" for="registerRole">Type de compte</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
                             <select id="registerRole" name="role" class="form-select">
                                 <option value="">Choisir un type de compte</option>
@@ -78,36 +94,42 @@ $currentPage = "register";
                         <div id="champsPro" class="d-none">
                             <h5>Champs pour comptes pro</h5>
                             <label class="visually-hidden" for="registerNumPro"></label>
+                            <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerNumPro" name="num_pro" type="text" class="form-control" placeholder="N° professionnel" />
                                 <div class="input-group-text"><span class="bi bi-hash"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerAdresse">Adresse</label>
+                            <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerAdresse" name="adresse" type="text" class="form-control" placeholder="Adresse" />
                                 <div class="input-group-text"><span class="bi bi-geo-alt"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerVille">Ville</label>
+                            <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerVille" name="ville" type="text" class="form-control" placeholder="Ville" />
                                 <div class="input-group-text"><span class="bi bi-building"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerHoraires">Horaires</label>
+                            <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerHoraires" name="horaires" type="text" class="form-control" placeholder="Horaires (ex : Lun-Ven 08h-18h)" />
                                 <div class="input-group-text"><span class="bi bi-clock"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerLatitude">Latitude</label>
+                            <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerLatitude" name="latitude" type="text" class="form-control" placeholder="Latitude (ex : 36.806389)" />
                                 <div class="input-group-text"><span class="bi bi-compass"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerLongitude">Longitude</label>
+                            <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerLongitude" name="longitude" type="text" class="form-control" placeholder="Longitude (ex : 10.181667)" />
                                 <div class="input-group-text"><span class="bi bi-compass"></span></div>
@@ -116,6 +138,7 @@ $currentPage = "register";
                     <!-- champs pro pour medecin -->
                      <div id="champsMedecin" class="d-none">
                         <label class="visually-hidden" for="registerSpecialite">Spécialité</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
                             <input id="registerSpecialite" name="specialite" type="text" class="form-control" placeholder="Generaliste" />
                             <div class="input-group-text"><span class="bi bi-heart-pulse"></span></div>
@@ -124,6 +147,7 @@ $currentPage = "register";
                     <!-- champs pro pour pharmacie -->
                      <div id="champsPharmacie" class="d-none">
                         <label class="visually-hidden" for="registerNomOfficine">Nom de l'officine</label>
+                        <span class="err "></span>
                         <div class="input-group mb-3">
                             <input id="registerNomOfficine" name="nom_officine" type="text" class="form-control" placeholder="Nom de la pharmacie" />
                             <div class="input-group-text"><span class="bi bi-shop"></span></div>
@@ -134,6 +158,7 @@ $currentPage = "register";
                     <!--begin::Row-->
                     <div class="row">
                         <div class="col-8">
+                            <span class="err "></span>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="conditions" name="conditions" />
                                 <label class="form-check-label" for="flexCheckDefault">
