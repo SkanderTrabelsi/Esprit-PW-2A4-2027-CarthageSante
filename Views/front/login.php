@@ -6,7 +6,9 @@ $currentPage = "login";
 <!DOCTYPE html>
 <html lang="fr">
 
+<?php require_once '../../Controllers/front/includes/session.php'; ?>  
 <?php require_once '../back/includes/head.php'; ?>  
+
 
 <body class="login-page bg-body-secondary">
   <main class="login-box">

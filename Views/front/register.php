@@ -23,7 +23,6 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerName">Nom</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            
                             <input id="registerName" name="nom" type="text" class="form-control" placeholder="Nom" />
                             <div class="input-group-text">
                                 <span class="bi bi-person"></span>
@@ -93,7 +92,7 @@ $currentPage = "register";
                     <!-- champs en commun pour medecin et pharmacie -->
                         <div id="champsPro" class="d-none">
                             <h5>Champs pour comptes pro</h5>
-                            <label class="visually-hidden" for="registerNumPro"></label>
+                            <label class="visually-hidden" for="registerNumPro">NumPro</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
                                 <input id="registerNumPro" name="num_pro" type="text" class="form-control" placeholder="N° professionnel" />
