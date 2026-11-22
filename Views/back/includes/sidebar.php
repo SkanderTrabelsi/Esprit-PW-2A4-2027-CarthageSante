@@ -24,14 +24,14 @@ function navActive($page, $currentPage) {
   </div>
   <!--end::Sidebar Brand-->
   <!--begin::Sidebar Search-->
-  <div class="sidebar-search" role="search">
-    <label for="sidebar-search-input" class="visually-hidden">Filter menu</label>
-    <input type="search" id="sidebar-search-input" class="form-control form-control-sm" placeholder="Filter menu…"
-      autocomplete="off" data-lte-toggle="sidebar-search" data-lte-target="#navigation" />
-    <p class="fs-7 text-secondary mt-2 mb-0" data-lte-search-empty role="status" hidden>
-      No matching pages.
-    </p>
-  </div>
+    <div class="sidebar-search" role="search">
+      <label for="sidebar-search-input" class="visually-hidden">Filter menu</label>
+      <input type="search" id="sidebar-search-input" class="form-control form-control-sm" placeholder="Filter menu…"
+        autocomplete="off" data-lte-toggle="sidebar-search" data-lte-target="#navigation" />
+      <p class="fs-7 text-secondary mt-2 mb-0" data-lte-search-empty role="status" hidden>
+        Aucune page trouver.
+      </p> 
+    </div>
   <!--end::Sidebar Search-->
 
   <!--begin::Sidebar Wrapper-->
@@ -40,29 +40,29 @@ function navActive($page, $currentPage) {
       <!--begin::Sidebar Menu-->
       <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" data-accordion="false" id="navigation">
         <!--begin: dashboard-->
-        <li class="nav-item">
-          <a href="#" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Dashboard
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="./index.html" class="nav-link active">
-                <i class="nav-icon bi bi-circle"></i>
-                <p>Dashboard v1</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="./index2.html" class="nav-link">
-                <i class="nav-icon bi bi-circle"></i>
-                <p>Dashboard v2</p>
-              </a>
-            </li>
-          </ul>
-        </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link active">
+              <i class="nav-icon bi bi-speedometer"></i>
+              <p>
+                Dashboard
+                <i class="nav-arrow bi bi-chevron-right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="./index.php" class="nav-link active">
+                  <i class="nav-icon bi bi-circle"></i>
+                  <p>Dashboard v1</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./index2.php" class="nav-link">
+                  <i class="nav-icon bi bi-circle"></i>
+                  <p>Dashboard v2</p>
+                </a>
+              </li>
+            </ul>
+          </li>
         <li class="nav-header">PAGES</li>
         <!--begin: users-->
         <li class="nav-item">

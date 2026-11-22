@@ -70,7 +70,7 @@ class pharmacieC{
     public function affPharmacie($id){
         $db=config::getConnexion();
         try{
-            $req = $db->prepare("SELECT * FROM pharmacies WHERE id_pharmacie = :id");
+            $req = $db->prepare("SELECT * FROM pharmacies WHERE id_utilisateur = :id");
             $req->execute([
                 ":id" => $id
             ]);

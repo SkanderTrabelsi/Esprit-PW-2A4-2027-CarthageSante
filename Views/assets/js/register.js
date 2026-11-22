@@ -83,8 +83,8 @@ formulaire.addEventListener("submit", function (event) {
     if(mdp.value.length < 8){
         affe(mdp,"Le mdp ne contenir au moin 8 caractaires");
         frmv = false;
-    }else if(mdp.value === nom.value){
-        affe(mdp,"Le mdp doit etre diferent que le nom");
+    }else if(mdp.value.includes(nom.value)){
+        affe(mdp,"Le mdp doit pas contenir votre nom");
         frmv = false;
     }else {
         affe(mdp, "");
@@ -199,6 +199,7 @@ formulaire.addEventListener("submit", function (event) {
             }
         }
     }
+
 
     //nabathou le formulair si tt est corecte
     if (frmv) {

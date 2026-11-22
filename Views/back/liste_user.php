@@ -1,6 +1,54 @@
 <?php
 $pageTitle = "Liste des utilisateurs";
 $currentPage = "liste_user";
+require_once '../../Controllers/front/includes/session.php';
+require_once '../../Controllers/front/utilisateurC.php';
+
+// admin kahaw ichouf page
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: ../front/login.php');
+    exit;
+}
+
+// suppression (modal)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_supprimer'])) {
+    $idSuppr = (int) $_POST['id_supprimer'];
+    if ($idSuppr > 0 ) {
+        (new utilisateurC())->removeUtilisateur($idSuppr);
+    }
+    header('Location: liste_user.php');
+    exit;
+}
+
+// changement de statut
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ( $_POST['statut']=== 'actif' || $_POST['statut']=== 'suspendu' ) ) {
+    $idmodif = (int) $_POST['id_statut'];
+
+    if ($idmodif > 0 && $_POST['statut']=== 'actif' ) {
+        (new utilisateurC())->updateUtilisateurStatut($idmodif, "actif");
+    }else if ($idmodif > 0 && $_POST['statut']=== 'suspendu' ) {
+        (new utilisateurC())->updateUtilisateurStatut($idmodif, "suspendu");
+    }
+    header('Location: liste_user.php');
+    exit;
+}
+
+//importation liste des utilisateurs lkolhom
+$uc = new utilisateurC();
+$liste = $uc->listeUtilisateur()->fetchAll();
+
+//couleurs et nom mta les role et statut
+$roles = [
+    'admin' => ['Administrateur', 'danger'],
+    'patient' => ['Patient', 'primary'],
+    'medecin' => ['Médecin', 'info'],
+    'pharmacie' => ['Pharmacie', 'secondary']
+];
+$statuts = [
+    'actif' => ['Actif', 'success'],
+    'en_attente' => ['En attente', 'warning'],
+    'suspendu' => ['Suspendu', 'danger']
+];
 ?>
 
 <!DOCTYPE html>
@@ -15,192 +63,219 @@ $currentPage = "liste_user";
 
         <main class="app-main">
             <!--begin::App Content Header-->
-            <div class="app-content-header">
-                <!--begin::Container-->
-                <div class="container-fluid">
-                    <!--begin::Row-->
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h1 class="mb-0 fs-3">Liste de tous les utilisateurs</h1>
+                <div class="app-content-header">
+                    <!--begin::Container--> 
+                    <div class="container-fluid">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h1 class="mb-0 fs-3">Liste de tous les utilisateurs</h1>
+                            </div>
+                            <div class="col-sm-6">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb float-sm-end">
+                                        <li class="breadcrumb-item"><a href="index.php">Accueil</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">utilisateurs</li>
+                                    </ol>
+                                </nav>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb float-sm-end">
-                                    <li class="breadcrumb-item"><a href="index.php">Accueil</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">utilisateurs</li>
-                                </ol>
-                            </nav>
-                        </div>
+                        <!--end::Row-->
                     </div>
-                    <!--end::Row-->
+                    <!--end::Container-->
                 </div>
-                <!--end::Container-->
-            </div>
             <!--end::App Content Header-->
             <!--begin::App Content-->
-            <div class="app-content">
-                <!--begin::Container-->
-                <div class="container-fluid">
-                    <!--begin::Row-->
-                    <div class="row">
-                        <div class="col-12">
-                            <!--begin::Card-->
-                            <div class="card mb-4">
-                                <!--begin::Card Header-->
-                                <div class="card-header">
-                                    <div class="row g-2 align-items-center">
-                                        <div class="col-12 col-md-4">
-                                            <h3 class="card-title">Dictionaire des utilisateurs</h3>
-                                        </div>
-                                        <div class="col-12 col-md-8">
-                                            <div class="d-flex flex-wrap justify-content-md-end gap-2">
-                                                <div class="input-group input-group-sm w-auto">
-                                                    <span class="input-group-text">
-                                                        <i class="bi bi-search" aria-hidden="true"></i>
-                                                    </span>
-                                                    <input type="search" id="user-search" class="form-control"
-                                                        placeholder="Search users" aria-label="Search users"
-                                                        style="width: 180px" />
+                <div class="app-content">
+                    <!--begin::Container-->
+                    <div class="container-fluid">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <div class="col-12">
+                                <!--begin::Card-->
+                                <div class="card mb-4">
+                                    <!--El Header du tableau-->
+                                        <div class="card-header">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-12 col-md-4">
+                                                    <h3 class="card-title">Dictionaire des utilisateurs</h3>
                                                 </div>
-                                                <select id="user-role-filter" class="form-select form-select-sm w-auto"
-                                                    aria-label="Filter by role">
-                                                    <option value="all" selected>tous les rôles</option>
-                                                    <option value="admin">Admin</option>
-                                                    <option value="client">Client</option>
-                                                    <option value="medecin">Medecin</option>
-                                                    <option value="pharmacie">Pharmacie</option>
-                                                </select>
-                                                <a href="add_admin.php">
-                                                    <button type="button" class="btn btn-sm btn-primary">
-                                                        <i class="bi bi-person-plus-fill me-1" aria-hidden="true"> </i>
-                                                        Ajouter un Admin
-                                                    </button>                                           
-                                                </a>
+                                                <div class="col-12 col-md-8">
+                                                    <div class="d-flex flex-wrap justify-content-md-end gap-2">
+                                                        <div class="input-group input-group-sm w-auto">
+                                                            <span class="input-group-text">
+                                                                <i class="bi bi-search" aria-hidden="true"></i>
+                                                            </span>
+                                                            <!--recherche-->
+                                                            <input type="search" id="user-search" class="form-control"
+                                                                placeholder="Search users" aria-label="Search users"
+                                                                style="width: 180px" />
+                                                        </div>
+                                                        <!-- filtre des roles -->
+                                                            <select id="user-role-filter" class="form-select form-select-sm w-auto"
+                                                                aria-label="Filter by role">
+                                                                <option value="all" selected>tous les rôles</option> 
+                                                                <option value="admin">Admin</option>
+                                                                <option value="patient">Patient</option>
+                                                                <option value="medecin">Medecin</option>
+                                                                <option value="pharmacie">Pharmacie</option>
+                                                            </select>
+                                                        <a href="add_admin.php">
+                                                            <button type="button" class="btn btn-sm btn-primary">
+                                                                <i class="bi bi-person-plus-fill me-1" aria-hidden="true"> </i>
+                                                                Ajouter un Admin
+                                                            </button>                                           
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    
+                                    <!--El tbleau daffichage-->
+                                        <div class="card-body p-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle m-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>nom</th>
+                                                            <th>Email</th>
+                                                            <th>Role</th>
+                                                            <th>Status</th>
+                                                            <th>Creation</th>
+                                                            <th class="text-end">Actions</th>
+                                                        </tr>
+                                                    </thead>    
+                                                <!-- affichages des utilisateurs --> 
+                                                    <tbody>
+                                                        <?php if (empty($liste)) { ?>
+                                                            <tr>
+                                                                <td colspan="6" class="text-center">Aucun utilisateur à afficher</td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                        <?php foreach ($liste as $u) { ?>
+                                                            <tr data-role="<?= htmlspecialchars($u['role'], ENT_QUOTES, 'UTF-8') ?>"
+                                                                data-statut="<?= htmlspecialchars($u['statut'], ENT_QUOTES, 'UTF-8') ?>">
+                                                                <td>    
+                                                                    <div class="d-flex align-items-center">
+                                                                        <img src="../<?= htmlspecialchars(!empty($u['photo_profil_url']) ? $u['photo_profil_url'] : '', ENT_QUOTES, 'UTF-8') ?>" alt=""
+                                                                            class="img-size-32 rounded-circle me-2" />
+                                                                        <span class="fw-medium">
+                                                                            <?= htmlspecialchars($u['prenom'] . ' ' . $u['nom'], ENT_QUOTES, 'UTF-8') ?>
+                                                                        </span>
+                                                                    </div>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                                <td>
+                                                                    <span class="badge text-bg-<?= $roles[$u['role']][1] ?>">
+                                                                        <?= $roles[$u['role']][0] ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="badge text-bg-<?= $statuts[$u['statut']][1] ?>">
+                                                                        <?= $statuts[$u['statut']][0] ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td><?= date('d/m/Y', strtotime($u['date_creation'])) ?></td>
+                                                                <!-- les buttons -->
+                                                                    <td class="text-end">
+                                                                        <div class="btn-group btn-group-sm"> 
+                                                                            <?php if ($u['id_utilisateur'] != $_SESSION['id_utilisateur']) { ?>
+                                                                                <!-- btn statu -->    
+                                                                                    <?php if ($u['statut'] === 'actif') { ?>
+                                                                                        <!-- compte actif -->
+                                                                                            <form action="" method="post" class="d-inline">
+                                                                                                <input type="hidden" name="id_statut" value="<?= $u['id_utilisateur'] ?>">
+                                                                                                <input type="hidden" name="statut" value="suspendu">
+                                                                                                <button type="submit" class="btn btn-sm btn-outline-warning"
+                                                                                                    title="Suspendre" aria-label="Suspendre">
+                                                                                                    <i class="bi bi-slash-circle" aria-hidden="true"> </i>
+                                                                                                </button>
+                                                                                            </form>
+                                                                                    <?php } elseif ($u['statut'] === 'suspendu') { ?>
+                                                                                        <!-- compte suspendu -->
+                                                                                            <form action="" method="post" class="d-inline">
+                                                                                                <input type="hidden" name="id_statut" value="<?= $u['id_utilisateur'] ?>">
+                                                                                                <input type="hidden" name="statut" value="actif">
+                                                                                                <button type="submit" class="btn btn-sm btn-outline-success"
+                                                                                                    title="Activer" aria-label="Activer">
+                                                                                                    <i class="bi bi-check-circle" aria-hidden="true"> </i>
+                                                                                                </button>
+                                                                                            </form>
+                                                                                    <?php } elseif ($u['statut'] === 'en_attente') { ?>
+                                                                                        <!-- compte en attente-->
+                                                                                            <a href="demnd_pro.php" class="btn btn-sm btn-outline-info"
+                                                                                                title="Voir la demande" aria-label="Voir la demande">
+                                                                                                <i class="bi bi-hourglass-split" aria-hidden="true"> </i>
+                                                                                            </a>
+                                                                                    <?php } ?>
+                                                                                <!-- btn suprimer -->                                                                             
+                                                                                    <button type="button" class="btn btn-outline-danger"
+                                                                                        data-bs-toggle="modal" data-bs-target="#modal-delete-user"
+                                                                                        aria-label="Supprimer"    
+                                                                                        title="Supprimer"                                                                
+                                                                                        data-id="<?= $u['id_utilisateur'] ?>"
+                                                                                        data-nom="<?= $u['nom'] ?>"
+                                                                                        data-pren="<?= $u['prenom'] ?>"  
+                                                                                        >                                                                      
+                                                                                        <i class="bi bi-trash" aria-hidden="true"> </i>
+                                                                                    </button>                                                                           
+                                                                            <?php }else{ ?>
+                                                                                <h6>votre compte</h6>  
+                                                                            <?php } ?>
+                                                                        </div>
+                                                                    </td>
+                                                            </tr>
+                                                        <?php } ?>                                               
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    
+                                    <!--Footer du tableau-->
+                                        <div class="card-footer clearfix">
+                                            <!--nb utilisateur total-->
+                                            <div class="float-start pt-1 fs-7 text-body-secondary">
+                                                Total : <?= count($liste) ?> utilisateur(s)
+                                            </div>
+                                        </div>
+                                    
                                 </div>
-                                <!--end::Card Header-->
-                                <!--begin::Card Body-->
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle m-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>nom</th>
-                                                    <th>Email</th>
-                                                    <th>Role</th>
-                                                    <th>Status</th>
-                                                    <th>Created</th>
-                                                    <th class="text-end">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <img src="./assets/img/user1-128x128.jpg" alt=""
-                                                                class="img-size-32 rounded-circle me-2" />
-                                                            <span class="fw-medium">Alexander Pierce</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>alexander.pierce@example.com</td>
-                                                    <td>
-                                                        <span class="badge text-bg-danger"> Administrator </span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge text-bg-success">Active</span>
-                                                    </td>
-                                                    <td>Mar 12, 2025</td>
-                                                    <td class="text-end">
-                                                        <div class="btn-group btn-group-sm">
-                                                            <a href="modif_user.php" class="btn btn-outline-secondary"
-                                                                aria-label="Edit Alexander Pierce">
-                                                                <i class="bi bi-pencil" aria-hidden="true"> </i>
-                                                            </a>
-                                                            <button type="button" class="btn btn-outline-danger"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#modal-delete-user"
-                                                                aria-label="Delete Alexander Pierce">
-                                                                <i class="bi bi-trash" aria-hidden="true"> </i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <!-- /.table-responsive -->
-                                </div>
-                                <!--end::Card Body-->
-                                <!--begin::Card Footer-->
-                                <div class="card-footer clearfix">
-                                    <div class="float-start pt-1 fs-7 text-body-secondary">
-                                        Showing 1 to 9 of 42 users
-                                    </div>
-                                    <ul class="pagination pagination-sm m-0 float-end">
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#" aria-label="Previous"> &laquo; </a>
-                                        </li>
-                                        <li class="page-item active">
-                                            <a class="page-link" href="#">1</a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">2</a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">3</a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">4</a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">5</a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Next"> &raquo; </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <!--end::Card Footer-->
+                                <!--end::Card-->
                             </div>
-                            <!--end::Card-->
+                            <!-- /.col -->
                         </div>
-                        <!-- /.col -->
-                    </div>
-                    <!--end::Row-->
+                        <!--end::Row-->
 
-                    <!--begin::Delete User Modal-->
-                    <div class="modal fade" id="modal-delete-user" tabindex="-1"
-                        aria-labelledby="modal-delete-user-label" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modal-delete-user-label">Delete user</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="mb-0">
-                                        Are you sure you want to delete this user? All content owned by the account
-                                        will be reassigned to the site administrator. This action cannot be undone.
-                                    </p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        Cancel
-                                    </button>
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                        Delete user
-                                    </button>
+                        <!--Model de suppresion utilisateur-->
+                            <div class="modal fade" id="modal-delete-user" tabindex="-1"
+                                aria-labelledby="modal-delete-user-label" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modal-delete-user-label">Supprimer un compte</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="mb-0">
+                                                Êtes-vous sûr de vouloir supprimer <strong id="nom-supprimer"></strong> ?
+                                                Tout le contenu appartenant à ce compte sera définitivement perdu.
+                                            </p>
+                                        </div>  
+                                        <div class="modal-footer">
+                                            <form method="post" action="" class="d-flex gap-2">
+                                                <input type="hidden" name="id_supprimer" id="id-supprimer" value="">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        
                     </div>
-                    <!--end::Delete User Modal-->
+                    <!--end::Container-->
                 </div>
-                <!--end::Container-->
-            </div>
             <!--end::App Content-->
         </main>
 
@@ -209,6 +284,7 @@ $currentPage = "liste_user";
 
 
     <?php require_once './includes/scripts.php'; ?>
+    <script src="../assets/js/liste_user.js"></script>
 </body>
 
 </html>

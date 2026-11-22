@@ -69,7 +69,7 @@ class medecinC{
     public function affMedecin($id){
         $db=config::getConnexion();
         try{
-            $req = $db->prepare("SELECT * FROM medecins WHERE id_medecin = :id");
+            $req = $db->prepare("SELECT * FROM medecins WHERE id_utilisateur = :id");
             $req->execute([
                 ":id" => $id
             ]);
