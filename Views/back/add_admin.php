@@ -21,13 +21,13 @@ $currentPage = "add_user";
                     <!--begin::Row-->
                     <div class="row">
                         <div class="col-sm-6">
-                            <h1 class="mb-0 fs-3">Ajouter un utilisateur</h1>
+                            <h1 class="mb-0 fs-3">Ajouter un admin</h1>
                         </div>
                         <div class="col-sm-6">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb float-sm-end">
                                     <li class="breadcrumb-item"><a href="index.php">Accueil</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">ajouter un utilisateur</li>
+                                    <li class="breadcrumb-item active" aria-current="page">ajouter un admin</li>
                                 </ol>
                             </nav>
                         </div>

@@ -70,10 +70,10 @@ $currentPage = "liste_user";
                                                     <option value="medecin">Medecin</option>
                                                     <option value="pharmacie">Pharmacie</option>
                                                 </select>
-                                                <a href="add_user.php">
+                                                <a href="add_admin.php">
                                                     <button type="button" class="btn btn-sm btn-primary">
                                                         <i class="bi bi-person-plus-fill me-1" aria-hidden="true"> </i>
-                                                        Ajouter un utilisateur
+                                                        Ajouter un Admin
                                                     </button>                                           
                                                 </a>
                                             </div>
