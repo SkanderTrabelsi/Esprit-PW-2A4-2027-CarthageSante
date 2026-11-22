@@ -1,6 +1,18 @@
 <?php
 $pageTitle = "S'inscrire";
 $currentPage = "register";
+require_once '../../Controllers/front/includes/session.php';
+require_once '../../Controllers/front/utilisateurC.php';
+
+$erreurs = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $utilisateurCtrl = new utilisateurC();
+    $erreurs = $utilisateurCtrl->inscription($_POST);
+    if (empty($erreurs)) {
+        header("Location: login.php?inscrit=1");
+        exit;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -17,13 +29,25 @@ $currentPage = "register";
         <div class="card">
             <div class="card-body register-card-body">
                 <p class="register-box-msg">Cree un compte</p>
+                <!-- affichage des err mta3 php -->
+                    <?php if (!empty($erreurs)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <ul class="mb-0">
+                                <?php foreach ($erreurs as $err): ?>
+                                    <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
 
-                <form action="" method="post" id="formu">
+                <form action="" method="post" id="formu" enctype="multipart/form-data">
                     <!-- champs en commun pour tous les utilisateurs -->
                         <label class="visually-hidden" for="registerName">Nom</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerName" name="nom" type="text" class="form-control" placeholder="Nom" />
+                            <input id="registerName" name="nom" type="text" class="form-control" placeholder="Nom" 
+                                value="<?= htmlspecialchars($_POST['nom'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
+                            />
                             <div class="input-group-text">
                                 <span class="bi bi-person"></span>
                             </div>
@@ -31,7 +55,9 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerPreNom">Prenom</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerPreNom" name="prenom" type="text" class="form-control" placeholder="Prenom" />
+                            <input id="registerPreNom" name="prenom" type="text" class="form-control" placeholder="Prenom" 
+                                    value="<?= htmlspecialchars($_POST['prenom'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            />
                             <div class="input-group-text">
                                 <span class="bi bi-person"></span>
                             </div>
@@ -39,7 +65,9 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerEmail">Email</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerEmail" name="email" type="text" class="form-control" placeholder="Email" />
+                            <input id="registerEmail" name="email" type="text" class="form-control" placeholder="Email" 
+                                    value="<?= htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            />
                             <div class="input-group-text">
                                 <span class="bi bi-envelope"></span>
                             </div>
@@ -47,7 +75,7 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerPassword">MotDePasse</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe" />
+                            <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe"/>
                             <div class="input-group-text">
                                 <span class="bi bi-lock-fill"></span>
                             </div>
@@ -63,7 +91,9 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerTelephone">Telephone</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerTelephone" name="telephone" type="text" class="form-control" placeholder="Votre numero de telephone" />
+                            <input id="registerTelephone" name="telephone" type="text" class="form-control" placeholder="Votre numero de telephone" 
+                                    value="<?= htmlspecialchars($_POST['telephone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            />
                             <div class="input-group-text">
                                 <span class="bi bi-phone"></span>
                             </div>
@@ -81,7 +111,7 @@ $currentPage = "register";
                         <div class="input-group mb-3">
                             <select id="registerRole" name="role" class="form-select">
                                 <option value="">Choisir un type de compte</option>
-                                <option value="client" <?php if (($_POST["role"] ?? "") == "client") echo "selected"; ?>>Patient</option>
+                                <option value="patient" <?php if (($_POST["role"] ?? "") == "patient") echo "selected"; ?>>Patient</option>
                                 <option value="medecin" <?php if (($_POST["role"] ?? "") == "medecin") echo "selected"; ?>>Médecin</option>
                                 <option value="pharmacie" <?php if (($_POST["role"] ?? "") == "pharmacie") echo "selected"; ?>>Pharmacie</option>
                             </select>
@@ -95,42 +125,54 @@ $currentPage = "register";
                             <label class="visually-hidden" for="registerNumPro">NumPro</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
-                                <input id="registerNumPro" name="num_pro" type="text" class="form-control" placeholder="N° professionnel" />
+                                <input id="registerNumPro" name="num_pro" type="text" class="form-control" placeholder="N° professionnel" 
+                                    value="<?= htmlspecialchars($_POST['num_pro'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                />
                                 <div class="input-group-text"><span class="bi bi-hash"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerAdresse">Adresse</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
-                                <input id="registerAdresse" name="adresse" type="text" class="form-control" placeholder="Adresse" />
+                                <input id="registerAdresse" name="adresse" type="text" class="form-control" placeholder="Adresse" 
+                                    value="<?= htmlspecialchars($_POST['adresse'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                />
                                 <div class="input-group-text"><span class="bi bi-geo-alt"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerVille">Ville</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
-                                <input id="registerVille" name="ville" type="text" class="form-control" placeholder="Ville" />
+                                <input id="registerVille" name="ville" type="text" class="form-control" placeholder="Ville" 
+                                    value="<?= htmlspecialchars($_POST['ville'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                />
                                 <div class="input-group-text"><span class="bi bi-building"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerHoraires">Horaires</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
-                                <input id="registerHoraires" name="horaires" type="text" class="form-control" placeholder="Horaires (ex : Lun-Ven 08h-18h)" />
+                                <input id="registerHoraires" name="horaires" type="text" class="form-control" placeholder="Horaires (ex : Lun-Ven 08h-18h)" 
+                                    value="<?= htmlspecialchars($_POST['horaires'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                />
                                 <div class="input-group-text"><span class="bi bi-clock"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerLatitude">Latitude</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
-                                <input id="registerLatitude" name="latitude" type="text" class="form-control" placeholder="Latitude (ex : 36.806389)" />
+                                <input id="registerLatitude" name="latitude" type="text" class="form-control" placeholder="Latitude (ex : 36.806389)" 
+                                    value="<?= htmlspecialchars($_POST['latitude'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                />
                                 <div class="input-group-text"><span class="bi bi-compass"></span></div>
                             </div>
 
                             <label class="visually-hidden" for="registerLongitude">Longitude</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
-                                <input id="registerLongitude" name="longitude" type="text" class="form-control" placeholder="Longitude (ex : 10.181667)" />
+                                <input id="registerLongitude" name="longitude" type="text" class="form-control" placeholder="Longitude (ex : 10.181667)" 
+                                    value="<?= htmlspecialchars($_POST['longitude'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                />
                                 <div class="input-group-text"><span class="bi bi-compass"></span></div>
                             </div>
                         </div>
@@ -139,7 +181,9 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerSpecialite">Spécialité</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerSpecialite" name="specialite" type="text" class="form-control" placeholder="Generaliste" />
+                            <input id="registerSpecialite" name="specialite" type="text" class="form-control" placeholder="Generaliste" 
+                                    value="<?= htmlspecialchars($_POST['specialite'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            />
                             <div class="input-group-text"><span class="bi bi-heart-pulse"></span></div>
                         </div>
                      </div>
@@ -148,7 +192,9 @@ $currentPage = "register";
                         <label class="visually-hidden" for="registerNomOfficine">Nom de l'officine</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerNomOfficine" name="nom_officine" type="text" class="form-control" placeholder="Nom de la pharmacie" />
+                            <input id="registerNomOfficine" name="nom_officine" type="text" class="form-control" placeholder="Nom de la pharmacie" 
+                                    value="<?= htmlspecialchars($_POST['nom_officine'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            />
                             <div class="input-group-text"><span class="bi bi-shop"></span></div>
                         </div>
                      </div>
@@ -160,7 +206,7 @@ $currentPage = "register";
                             <span class="err "></span>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="conditions" name="conditions" />
-                                <label class="form-check-label" for="flexCheckDefault">
+                                <label class="form-check-label" for="conditions">
                                     J'accepte les <a href="#">terms</a>
                                 </label>
                             </div>
@@ -196,9 +242,9 @@ $currentPage = "register";
     </main>
 
 
-
-    <?php require_once './includes/scripts.php'; ?>
     <script src="../assets/js/register.js"></script>
+    
+    
 
 </body>
 

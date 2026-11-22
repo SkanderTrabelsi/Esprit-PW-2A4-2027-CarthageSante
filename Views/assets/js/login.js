@@ -34,8 +34,8 @@ formulaire.addEventListener("submit", function (event) {
         affe(email, "");
     }
 
-    if(mdp.value.length < 8){
-        affe(mdp,"Le mdp ne contenir au moin 8 caractaires");
+    if(mdp.value === ""){
+        affe(mdp,"Le mdp est obligatoire");
         frmv = false;
     }else {
         affe(mdp, "");

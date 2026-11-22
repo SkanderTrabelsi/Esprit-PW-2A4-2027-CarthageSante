@@ -10,7 +10,6 @@ class medecin{
     private ?string $longitude;
     private string $horaires_travail;
     private int $teleconsultation_active = 0;
-    private string $is_valide = "";
 
     public function __construct(int $id_utilisateur,string $specialite, string $num_ordre_medecin, string $adresse_cabinet,string $ville,
                                 ?string $latitude, ?string $longitude, string $horaires_travail

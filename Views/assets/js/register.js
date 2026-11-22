@@ -9,6 +9,7 @@ const df = document.getElementById("champsPharmacie");
 
 //fnc activ desactiv les champs pro
 function toggleChampsPro() {
+    console.log("role.value au chargement :", JSON.stringify(role.value));
     if (role.value === "medecin" || role.value === "pharmacie") {
         dcomunmf.classList.remove("d-none");
         if(role.value === "medecin"){
@@ -205,4 +206,6 @@ formulaire.addEventListener("submit", function (event) {
     }
 });
 
+
 role.addEventListener("change", toggleChampsPro);
+toggleChampsPro();

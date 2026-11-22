@@ -9,9 +9,8 @@ class pharmacie{
     private ?string $latitude;          
     private ?string $longitude;
     private string $horaires_ouverture;
-    private string $type_ouverture = "";
+    private string $type_ouverture = "jour";
     private int $est_de_garde = 0;
-    private string $is_valide = "";
 
     public function __construct(int $id_utilisateur,string $nom_officine, string $num_autorisation, string $adresse,string $ville,
                                 ?string $latitude, ?string $longitude, string $horaires_ouverture

@@ -12,8 +12,7 @@ class utilisateur{
     private string $date_creation = "";
 
     public function __construct(string $nom, string $prenom, string $email,string $mot_de_passe_hash,
-                                ?string $telephone, ?string $photo_profil_url, string $role
-    ){
+                                ?string $telephone, ?string $photo_profil_url, string $role){
         $this->nom = $nom;
         $this->prenom = $prenom;
         $this->email = $email;
@@ -21,7 +20,7 @@ class utilisateur{
         $this->telephone = $telephone;
         $this->photo_profil_url = $photo_profil_url;
         $this->role = $role;
-        $this->statut = ($role === 'patient') ? 'actif' : 'inactif';
+        $this->statut = ($role === 'patient' || $role === 'admin') ? 'actif' : 'en_attente';
         
     }
 
