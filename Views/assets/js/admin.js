@@ -1573,3 +1573,28 @@
     exports.teardown = teardown;
 
 }));
+
+document.addEventListener('DOMContentLoaded', () => {
+  const currentFile = window.location.pathname.split('/').pop() || 'index.php';
+  const sidebarLinks = document.querySelectorAll('.app-sidebar .sidebar-menu .nav-link');
+
+  sidebarLinks.forEach((link) => {
+    link.classList.remove('active');
+    const href = link.getAttribute('href');
+    if (!href || href === '#') return;
+
+    const linkFile = href.split('/').pop().split('?')[0];
+    if (linkFile === currentFile) {
+      link.classList.add('active');
+
+      const parentTree = link.closest('.nav-treeview');
+      if (parentTree) {
+        const parentItem = parentTree.closest('.nav-item');
+        if (parentItem) {
+          parentItem.classList.add('menu-open');
+          parentItem.querySelector(':scope > .nav-link')?.classList.add('active');
+        }
+      }
+    }
+  });
+});

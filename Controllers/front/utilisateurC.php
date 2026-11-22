@@ -3,8 +3,10 @@ require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../Models/utilisateur.php';
 require_once __DIR__ . '/../../Models/medecin.php';
 require_once __DIR__ . '/../../Models/pharmacie.php';
+require_once __DIR__ . '/../../Models/admin.php';
 require_once __DIR__ . '/medecinC.php';
 require_once __DIR__ . '/pharmacieC.php';
+require_once __DIR__ . '/../back/adminC.php';
 
 class utilisateurC{
     public function listeUtilisateur(){
@@ -71,6 +73,20 @@ class utilisateurC{
         }
     }
 
+    public function updateUtilisateurStatut($id,$s){
+        $db = config::getConnexion();
+        try{
+            $req = $db->prepare("UPDATE utilisateurs SET statut= :s
+            WHERE id_utilisateur=:id ");
+            $req->execute([
+                ":s" => $s,
+                ":id" => $id
+            ]);
+        }catch(Exception $e){
+            die("Error: ".$e->getMessage());
+        }  
+    }
+
     public function affUtilisateur($id){
         $db=config::getConnexion();
         try{
@@ -112,7 +128,7 @@ class utilisateurC{
 
     public function inscription(array $post): array{
         $erreurs = [];
-
+        //champs commun
         $nom = trim($post['nom'] ?? '');
         $prenom = trim($post['prenom'] ?? '');
         $email = trim($post['email'] ?? '');
@@ -120,7 +136,7 @@ class utilisateurC{
         $cpassword = (string) ($post['Cpassword'] ?? '');
         $telephone = trim($post['telephone'] ?? '');
         $role = trim($post['role'] ?? '');
-
+        //champs pro
         $numPro = trim($post['num_pro'] ?? '');
         $adresse = trim($post['adresse'] ?? '');
         $ville = trim($post['ville'] ?? '');
@@ -129,6 +145,8 @@ class utilisateurC{
         $longitude = trim($post['longitude'] ?? '');
         $specialite = trim($post['specialite'] ?? '');
         $nomOfficine = trim($post['nom_officine'] ?? '');
+        //champs admin
+        $niveau_acces = trim($post['niv'] ?? '');
 
         if($nom === '') {
             $erreurs[] = "Le nom est obligatoire.";
@@ -154,7 +172,7 @@ class utilisateurC{
         } elseif (!preg_match('/^[2459]\d{7}$/', $telephone)) {
             $erreurs[] = "Le numéro de téléphone n'est pas valide.";
         }
-        $rolesAutorises = ['patient', 'medecin', 'pharmacie'];
+        $rolesAutorises = ['patient', 'medecin', 'pharmacie', 'admin'];
         if(!in_array($role, $rolesAutorises, true)) {
             $erreurs[] = "Veuillez choisir un type de compte valide.";
         }
@@ -187,6 +205,12 @@ class utilisateurC{
             }
             if ($role === 'pharmacie' && $nomOfficine === '') {
                 $erreurs[] = "Le nom de la pharmacie est obligatoire.";
+            }
+        }
+        //verif si admin
+        if($role === 'admin'){
+            if($niveau_acces === ''){
+                $erreurs[] = "Veuillez choisir un Niveau D'acces.";
             }
         }
         // nkoso script w nraj3o tableau err
@@ -248,6 +272,12 @@ class utilisateurC{
                 $horaires
             );
             (new pharmacieC())->addPharmacie($p);
+        }elseif ($role === 'admin') {
+            $m = new admin(
+                $id,
+                $niveau_acces
+            );
+            (new adminC())->addAdmin($m);
         }
         $db->commit();
         return [];
