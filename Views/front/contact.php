@@ -1,6 +1,8 @@
 <?php
 $pageTitle = "Contact";
 $currentPage = "contact";
+
+require_once '../../Controllers/front/includes/session.php';
 ?>
 
 <!DOCTYPE html>

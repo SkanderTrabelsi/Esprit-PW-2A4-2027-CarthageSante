@@ -55,7 +55,7 @@ class adminC{
     public function affAdmin($id){
         $db=config::getConnexion();
         try{
-            $req = $db->prepare("SELECT * FROM admin WHERE id_admin  = :id");
+            $req = $db->prepare("SELECT * FROM admin WHERE id_utilisateur = :id");
             $req->execute([
                 ":id" => $id
             ]);

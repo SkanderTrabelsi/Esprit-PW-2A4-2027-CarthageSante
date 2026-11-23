@@ -12,7 +12,7 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 //importation liste des utilisateurs lkolhom
 $uc = new utilisateurC();
 $liste = $uc->listeUtilisateur()->fetchAll();
-//liste juste en attente
+//liste juste en attente 
 $demandesPro = array_filter($liste, function ($u) {
     return ($u['statut'] === 'en_attente');
 });
