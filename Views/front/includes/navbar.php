@@ -36,6 +36,39 @@ if (!function_exists('navActive')) {
                         </ul>
                     </li>
                     <li><a href="contact.php" class="<?php echo navActive('contact', $currentPage); ?>">Contact</a></li>
+                    <!-- drop down user -->
+                        <?php if (! empty($_SESSION['id_utilisateur'])): ?>
+                            <li class="dropdown nav-user-dropdown">
+                                <a href="#" class="nav-user-trigger <?php echo navActive('profile', $currentPage); ?>">
+                                    <span class="nav-user-badge">
+                                        <img src="../<?php echo($_SESSION['photo']) ?>" alt="<?php echo($_SESSION['nom']) ?>" class="nav-user-avatar">
+                                        <span class="nav-user-name"><?php echo($_SESSION['prenom'] .' '. $_SESSION['nom']) ?></span>
+                                    </span>
+                                    <i class="bi bi-chevron-down toggle-dropdown"></i>
+                                </a>
+                                <ul class="nav-user-menu">
+                                    <li class="nav-user-header">
+                                        <img src="../<?php echo($_SESSION['photo']) ?>" alt="<?php echo($_SESSION['nom']) ?>" class="nav-user-avatar-lg">
+                                        <div>
+                                            <strong><?php echo($_SESSION['prenom'] .' '. $_SESSION['nom']) ?></strong>
+                                            <small>Membre depuis le <?php echo( date('d/m/Y', strtotime($_SESSION['date_creation']))) ?></small>
+                                        </div>
+                                    </li>
+                                    <li><a href="profile.php?id=<?php echo($_SESSION['id_utilisateur']) ?>" class="<?php echo navActive('profile', $currentPage); ?>"><i class="bi bi-person me-2"></i>Profil</a></li>
+                                    <?php if ($_SESSION['role'] === 'admin'): ?>
+                                        <li><a href="../back/index.php"><i class="bi bi-speedometer2 me-2"></i>Backoffice</a></li>
+                                    <?php endif; ?>
+                                    <li><a href="logout.php" class="nav-logout-link"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                                </ul>
+                            </li>
+                        <?php else: ?>
+                            <li>
+                                <a href="login.php" class="nav-login-pill <?php echo navActive('login', $currentPage); ?>">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                    <!-- wfe drop down -->
                 </ul>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>

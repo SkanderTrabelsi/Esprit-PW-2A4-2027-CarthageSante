@@ -1,6 +1,8 @@
 <?php
 $pageTitle = "Not Found";
 $currentPage = "404";
+
+require_once '../../Controllers/front/includes/session.php';
 ?>
 
 <!DOCTYPE html>

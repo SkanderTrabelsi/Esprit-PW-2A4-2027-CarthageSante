@@ -8,7 +8,7 @@ require_once '../../Controllers/front/utilisateurC.php';
 if (($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: ../front/login.php');
     exit;
-}
+} 
 
 // suppression (modal)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_supprimer'])) {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ( $_POST['statut']=== 'actif' || $_
 
 //importation liste des utilisateurs lkolhom
 $uc = new utilisateurC();
-$liste = $uc->listeUtilisateur()->fetchAll();
+$liste = $uc->listeUtilisateur()->fetchAll(); 
 
 //couleurs et nom mta les role et statut
 $roles = [
@@ -157,7 +157,7 @@ $statuts = [
                                                                 data-statut="<?= htmlspecialchars($u['statut'], ENT_QUOTES, 'UTF-8') ?>">
                                                                 <td>    
                                                                     <div class="d-flex align-items-center">
-                                                                        <img src="../<?= htmlspecialchars(!empty($u['photo_profil_url']) ? $u['photo_profil_url'] : '', ENT_QUOTES, 'UTF-8') ?>" alt=""
+                                                                        <img src="../<?= htmlspecialchars($u['photo_profil_url'], ENT_QUOTES, 'UTF-8') ?>" alt=""
                                                                             class="img-size-32 rounded-circle me-2" />
                                                                         <span class="fw-medium">
                                                                             <?= htmlspecialchars($u['prenom'] . ' ' . $u['nom'], ENT_QUOTES, 'UTF-8') ?>

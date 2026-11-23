@@ -56,7 +56,7 @@ function navActive($page, $currentPage) {
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index2.php" class="nav-link">
+                <a href="./index.php" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
                   <p>Dashboard v2</p>
                 </a>

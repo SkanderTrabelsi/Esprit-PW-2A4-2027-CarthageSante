@@ -13,3 +13,6 @@ node_modules/
 
 # Fichiers locaux
 .env
+
+#photo utilisateur
+Views/assets/uploads/profils/*

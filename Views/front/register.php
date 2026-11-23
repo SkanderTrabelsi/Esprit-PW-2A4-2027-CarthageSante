@@ -7,7 +7,7 @@ require_once '../../Controllers/front/utilisateurC.php';
 $erreurs = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $utilisateurCtrl = new utilisateurC();
-    $erreurs = $utilisateurCtrl->inscription($_POST);
+    $erreurs = $utilisateurCtrl->inscription($_POST, $_FILES,false);
     if (empty($erreurs)) {
         header("Location: login.php?inscrit=1");
         exit;

@@ -1,6 +1,8 @@
 <?php
 $pageTitle = "Accueil";
 $currentPage = "index";
+
+require_once '../../Controllers/front/includes/session.php';
 ?>
 
 <!DOCTYPE html>

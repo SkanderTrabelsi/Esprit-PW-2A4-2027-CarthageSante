@@ -5,10 +5,18 @@ $currentPage = "add_admin";
 require_once '../../Controllers/front/includes/session.php';
 require_once '../../Controllers/front/utilisateurC.php';
 
+// admin kahaw ichouf page
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: ../front/login.php');
+    exit;
+} 
+
 $erreurs = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $utilisateurCtrl = new utilisateurC();
-    $erreurs = $utilisateurCtrl->inscription($_POST);
+    $donnees = $_POST;
+    $donnees['role'] = 'admin';   // le role est forcer
+    $erreurs = $utilisateurCtrl->inscription($donnees, $_FILES, true);
     if (empty($erreurs)) {
         header("Location: liste_user.php");
         exit;
@@ -70,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </div>
                                         <?php endif; ?>
                                     <form action="" method="post" id="formu" enctype="multipart/form-data">
-                                        <input type="hidden" id="registerRole" name="role" value="admin">
+                                        
                                     <!-- champs -->
                                         <label class="visually-hidden" for="registerName">Nom</label>
                                         <span class="err "></span>
