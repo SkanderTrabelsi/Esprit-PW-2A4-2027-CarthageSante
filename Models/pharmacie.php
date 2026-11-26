@@ -3,7 +3,7 @@ class pharmacie{
     private int $id_pharmacie = 0;
     private int $id_utilisateur;
     private string $nom_officine;
-    private string $num_autorisation;
+    private string $num_autorisation; 
     private string $adresse;
     private string $ville;
     private ?string $latitude;          

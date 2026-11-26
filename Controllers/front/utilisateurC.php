@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../Models/admin.php';
 require_once __DIR__ . '/medecinC.php';
 require_once __DIR__ . '/pharmacieC.php';
 require_once __DIR__ . '/../back/adminC.php';
+require_once __DIR__ . '/mailC.php';
 
 class utilisateurC{
     public function listeUtilisateur(){
@@ -23,7 +24,8 @@ class utilisateurC{
         $db = config::getConnexion();
         try{
             $req = $db->prepare("INSERT INTO utilisateurs 
-            VALUES(NULL,:n,:p,:e,:m,:t,:i,:r,:s,DEFAULT)" );
+            (nom, prenom, email, mot_de_passe_hash, telephone, photo_profil_url, role, statut)
+            VALUES(:n,:p,:e,:m,:t,:i,:r,:s)" );
             $req->execute([
                 ":n" => $u->nom,
                 ":p" => $u->prenom,
@@ -132,10 +134,12 @@ class utilisateurC{
                 ":i"  => $photo,
                 ":id" => $id
             ]);
-            //mettre a jour info fel session 
-            $_SESSION['nom'] = $nom;
-            $_SESSION['prenom'] = $prenom;
-            $_SESSION['photo'] = $photo;
+            //mettre a jour info fel session si le compte qui a fais la modif et le meme connecter
+            if ($_SESSION['id_utilisateur'] === $id) {
+                $_SESSION['nom'] = $nom;
+                $_SESSION['prenom'] = $prenom;
+                $_SESSION['photo'] = $photo;
+            }
 
             return [];
         } catch (Exception $e) {
@@ -153,11 +157,35 @@ class utilisateurC{
                 ":s" => $s,
                 ":id" => $id
             ]);
+            $user = $this->affUtilisateur($id);
+            //nabathou email confirmation
+            $env = @parse_ini_file(__DIR__ . '/../../.env');
+            $contenu = '<p>Bonjour ' . htmlspecialchars($user['prenom'] .' '. $user['nom'], ENT_QUOTES, 'UTF-8') . ',</p>'
+            . '<p>Le statut de votre compte sur <strong>Carthage Santé</strong> a été mis à jour.</p>'
+            . '<p>Nouveau statut : <strong>' . htmlspecialchars($s, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
+            . '<p>Pour toute question concernant cette modification, veuillez contacter notre équipe support.</p>'
+            . '<p>Cordialement,<br>L\'équipe Carthage Santé</p>';
+            (new mailC())->envoyer($user['email'], "Mise à jour du statut de votre compte - Carthage Santé", $contenu);
         }catch(Exception $e){
             die("Error: ".$e->getMessage());
-        }  
+        } 
+
     }
 
+    public function updateDerniereConnexion($id){
+        $db = config::getConnexion();
+        try {
+            $req = $db->prepare("UPDATE utilisateurs SET derniere_connexion = NOW() WHERE id_utilisateur = :id");
+            $req->execute([
+                ":id" => $id
+            ]);
+        } catch (Exception $e) {
+            die("Error: " . $e->getMessage());
+        }
+    }
+
+    //gestion mot de passs oublier
+    //pour la page profil
     public function updateMotDePasse(int $id, array $post): array{
         $erreurs = [];
         //recup champ + tandifh
@@ -201,6 +229,106 @@ class utilisateurC{
             return [];
         } catch (Exception $e) {
             die("Error: " . $e->getMessage());
+        }
+    }
+    //pour mot de pass oublier sans connection
+    public function demanderReset(array $post): array{
+        $erreurs = [];
+        $email = trim($post['email'] ?? '');
+
+        if($email === '') {
+            $erreurs[] = "L'email est obligatoire.";
+        }elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $erreurs[] = "L'adresse e-mail n'est pas valide.";
+        }
+        if (!empty($erreurs)) {
+            return $erreurs;
+        }
+
+        $user = $this->affutilisateurmail($email);
+        // ma n9olouch lel visiteur si l'email existe wala le (securite)
+        if ($user) {
+            $token = bin2hex(random_bytes(32));
+            $db = config::getConnexion();
+            try{
+                //nsajlo el hash mta token w expiration ba3d 1 heure
+                $req = $db->prepare("UPDATE utilisateurs 
+                    SET token_reset = :t, reset_expiration = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+                    WHERE id_utilisateur = :id");
+                $req->execute([
+                    ":t" => hash('sha256', $token),
+                    ":id" => $user['id_utilisateur']
+                ]);
+            }catch(Exception $e){
+                die("Error: ".$e->getMessage());
+            }
+
+            //nabathou el lien bel email
+            $env = @parse_ini_file(__DIR__ . '/../../.env');
+            $lien = $env['APP_URL'] . '/reset-password.php?token=' . $token;
+            $contenu = '<p>Bonjour ' . htmlspecialchars($user['prenom'] .' '. $user['nom'], ENT_QUOTES, 'UTF-8') . ',</p>'
+                . '<p>Vous avez demandé la réinitialisation de votre mot de passe sur Carthage Santé.</p>'
+                . '<p><a href="' . $lien . '">Cliquez ici pour choisir un nouveau mot de passe</a></p>'
+                . '<p>Ce lien est valable 1 heure. Si vous n\'êtes pas à l\'origine de cette demande, ignorez cet email.</p>';
+            (new mailC())->envoyer($email, "Réinitialisation de votre mot de passe", $contenu);
+        }
+        return [];
+    }
+
+    public function verifierTokenReset($token){
+        $db = config::getConnexion();
+        try{
+            //token s7i7 w mazel ma expirech
+            $req = $db->prepare("SELECT * FROM utilisateurs 
+                WHERE token_reset = :t AND reset_expiration > NOW()");
+            $req->execute([
+                ":t" => hash('sha256', (string) $token)
+            ]);
+            return $req->fetch();
+        }catch(Exception $e){
+            die("Erreur ".$e->getMessage());
+        }
+    }
+    //modif mdp mel page mot de passe oublier
+    public function changerMotDePasseReset($token, array $post): array{
+        $erreurs = [];
+        $mdpNouveau = (string) ($post['mdp_nouveau'] ?? '');
+        $mdpConfirm = (string) ($post['mdp_confirm'] ?? '');
+
+        if (strlen($mdpNouveau) < 8) {
+            $erreurs[] = "Le mot de passe doit contenir au moins 8 caractères.";
+        }
+        if ($mdpConfirm !== $mdpNouveau) {
+            $erreurs[] = "La confirmation du mot de passe ne correspond pas.";
+        }
+        if (!empty($erreurs)) {
+            return $erreurs;
+        }
+
+        $user = $this->verifierTokenReset($token);
+        if (!$user) {
+            $erreurs[] = "Ce lien est invalide ou a expiré.";
+            return $erreurs;
+        }
+        if ($mdpNouveau === $user['nom']) {
+            $erreurs[] = "Le mot de passe doit être différent du nom.";
+            return $erreurs;
+        }
+
+        $db = config::getConnexion();
+        try{
+            //nbadlou el mdp w nfas5ou token reset w token souvenir
+            $req = $db->prepare("UPDATE utilisateurs 
+                SET mot_de_passe_hash = :m, token_reset = NULL, reset_expiration = NULL,
+                    token_souvenir = NULL, token_expiration = NULL
+                WHERE id_utilisateur = :id");
+            $req->execute([
+                ":m" => password_hash($mdpNouveau, PASSWORD_DEFAULT),
+                ":id" => $user['id_utilisateur']
+            ]);
+            return [];
+        }catch(Exception $e){
+            die("Error: ".$e->getMessage());
         }
     }
 
@@ -402,40 +530,67 @@ class utilisateurC{
         // najoutiw lel tableau
         $db = config::getConnexion();
         $db->beginTransaction();
-        $id = $this->addUtilisateur($u);
-        //creation claase pour compte pro
-        if ($role === 'medecin') {
-            $m = new medecin(
-                $id,
-                $specialite,
-                $numPro,
-                $adresse,
-                $ville,
-                $latitude,
-                $longitude,
-                $horaires
-            );
-            (new medecinC())->addMedecin($m);
-        }elseif ($role === 'pharmacie') {
-            $p = new pharmacie(
-                $id,
-                $nomOfficine,
-                $numPro,
-                $adresse,
-                $ville,
-                $latitude,
-                $longitude,
-                $horaires
-            );
-            (new pharmacieC())->addPharmacie($p);
-        }elseif ($role === 'admin') {
-            $m = new admin(
-                $id,
-                $niveau_acces
-            );
-            (new adminC())->addAdmin($m);
+        try {
+            $id = (int) $this->addUtilisateur($u);
+            if ($id <= 0) {
+                $db->rollBack();
+                $erreurs[] = "Une erreur est survenue lors de la création du compte.";
+                return $erreurs;
+            }
+            //creation claase pour compte pro
+            if ($role === 'medecin') {
+                $m = new medecin(
+                    $id,
+                    $specialite,
+                    $numPro,
+                    $adresse,
+                    $ville,
+                    $latitude,
+                    $longitude,
+                    $horaires
+                );
+                (new medecinC())->addMedecin($m);
+            }elseif ($role === 'pharmacie') {
+                $p = new pharmacie(
+                    $id,
+                    $nomOfficine,
+                    $numPro,
+                    $adresse,
+                    $ville,
+                    $latitude,
+                    $longitude,
+                    $horaires
+                );
+                (new pharmacieC())->addPharmacie($p);
+            }elseif ($role === 'admin') {
+                $m = new admin(
+                    $id,
+                    $niveau_acces
+                );
+                (new adminC())->addAdmin($m);
+            }
+            $db->commit();
+        }catch (Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            $erreurs[] = "Une erreur est survenue lors de l'enregistrement du profil.";
+            return $erreurs;
         }
-        $db->commit();
+        //nabathou el lien bel email
+        $env = @parse_ini_file(__DIR__ . '/../../.env');
+        $messageValidation = '';
+        if($role === 'medecin' || $role === 'pharmacie'){
+            $messageValidation = '<p>Votre compte est en cours de validation par un administrateur.</p>'
+            . '<p>Vous recevrez un email de confirmation dès qu\'un administrateur aura terminé la validation.</p>';
+        }
+        $contenu = '<p>Bonjour ' . htmlspecialchars($prenom .' '. $nom, ENT_QUOTES, 'UTF-8') . ',</p>'
+        . '<p>Bienvenue sur <strong>Carthage Santé</strong> ! Votre compte a bien été créé.</p>'
+        .  $messageValidation
+        . '<p>Vous pouvez dès maintenant vous connecter à votre espace :</p>'
+        . '<p>Si vous n\'êtes pas à l\'origine de cette inscription, merci de nous contacter ou d\'ignorer cet email.</p>'
+        . '<p>À très bientôt,<br>L\'équipe Carthage Santé</p>';
+        (new mailC())->envoyer($email, "Bienvenue sur Carthage Santé", $contenu);
         return [];
     }
 
@@ -470,7 +625,18 @@ class utilisateurC{
             $erreurs[] = "Votre compte est suspendu.";
             return $erreurs;
         }
+        //creation session
+        $this->ouvrirSession($user);
+        //si btn souvenir de moi : creation cokkie
+        if (isset($_POST['souvenir'])) {
+            $this->creerSouvenir((int) $user['id_utilisateur']);
+        }
 
+        return [];
+    }
+
+    //creation session
+    private function ouvrirSession(array $user){
         session_regenerate_id(true);
         $_SESSION['id_utilisateur'] = (int) $user['id_utilisateur'];
         $_SESSION['role'] = $user['role'];
@@ -483,11 +649,14 @@ class utilisateurC{
             $admin = (new adminC())->affAdmin((int) $user['id_utilisateur']);
             $_SESSION['niveau_acces'] = $admin['niveau_acces'];
         }
-
-        return [];
+        $this->updateDerniereConnexion((int) $user['id_utilisateur']);
     }
 
     public function deconnexion(){
+        //ken andou session avec souvenir: nfaskhou le cokkie 
+        if (isset($_SESSION['id_utilisateur'])) {
+            $this->oublierSouvenir((int) $_SESSION['id_utilisateur']);
+        }
         $_SESSION = [];
         // nfas5ou el cookie PHPSESSID 
         if (ini_get('session.use_cookies')) {
@@ -497,6 +666,62 @@ class utilisateurC{
         }
         // na7iw el session cote serveur
         session_destroy();
+    }
+
+    //gestion sesion souvenir
+    // nsajlo el token fel base (hash) w fel cookie
+    private function creerSouvenir($id){
+        $token = bin2hex(random_bytes(32));
+        $db = config::getConnexion();
+        try{
+            $req = $db->prepare("UPDATE utilisateurs 
+                SET token_souvenir = :t, token_expiration = DATE_ADD(NOW(), INTERVAL 30 DAY)
+                WHERE id_utilisateur = :id");
+            $req->execute([
+                ":t" => hash('sha256', $token),
+                ":id" => $id
+            ]);
+        }catch(Exception $e){
+            die("Error: ".$e->getMessage());
+        }
+        setcookie('souvenir', $id . ':' . $token, [
+            'expires' => time() + 30 * 24 * 3600,
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+    // nfas5ou el token (deconnexion)
+    private function oublierSouvenir($id){
+        $db = config::getConnexion();
+        try{
+            $req = $db->prepare("UPDATE utilisateurs 
+                SET token_souvenir = NULL, token_expiration = NULL
+                WHERE id_utilisateur = :id");
+            $req->execute([":id" => $id]);
+        }catch(Exception $e){
+            die("Error: ".$e->getMessage());
+        }
+        setcookie('souvenir', '', time() - 3600, '/');
+        unset($_COOKIE['souvenir']);
+    }
+    // reconnexion automatique avec el cookie
+    public function connexionSouvenir(){
+        //coupe le coukie en partie (1 est le id)
+        $parties = explode(':', $_COOKIE['souvenir'] ?? '');
+        //si partie diff alors cokie modifier ou invalid
+        if (count($parties) !== 2) {
+            return;
+        }
+        $user = $this->affUtilisateur((int) $parties[0]);
+        if ($user && $user['token_souvenir'] !== null
+            && $user['statut'] === 'actif'
+            && strtotime($user['token_expiration']) > time()
+            && hash_equals($user['token_souvenir'], hash('sha256', $parties[1]))) {
+            $this->ouvrirSession($user);
+        } else {
+            setcookie('souvenir', '', time() - 3600, '/');
+        }
     }
 }
 ?>

@@ -8,7 +8,7 @@ class medecin{
     private string $ville;
     private ?string $latitude;          
     private ?string $longitude;
-    private string $horaires_travail;
+    private string $horaires_travail; 
     private int $teleconsultation_active = 0;
 
     public function __construct(int $id_utilisateur,string $specialite, string $num_ordre_medecin, string $adresse_cabinet,string $ville,

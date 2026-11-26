@@ -18,6 +18,12 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 
 $_SESSION['last_activity'] = time();//fi kol chargement de page ne5dhou el wakt
 
+// reconnexion auto si cookie "se souvenir de moi"
+require_once __DIR__ . '/../utilisateurC.php';
+if (empty($_SESSION['id_utilisateur']) && isset($_COOKIE['souvenir'])) {
+    (new utilisateurC())->connexionSouvenir();
+}
+
 
 
 header('X-Frame-Options: DENY');

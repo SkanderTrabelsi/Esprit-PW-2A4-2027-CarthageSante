@@ -120,10 +120,10 @@ $statuts = [
                                                                 <option value="medecin">Medecin</option>
                                                                 <option value="pharmacie">Pharmacie</option>
                                                             </select>
-                                                        <a href="add_admin.php">
+                                                        <a href="add_user.php">
                                                             <button type="button" class="btn btn-sm btn-primary">
                                                                 <i class="bi bi-person-plus-fill me-1" aria-hidden="true"> </i>
-                                                                Ajouter un Admin
+                                                                Ajouter un Utilisateur
                                                             </button>                                           
                                                         </a>
                                                     </div>
@@ -142,6 +142,7 @@ $statuts = [
                                                             <th>Role</th>
                                                             <th>Status</th>
                                                             <th>Creation</th>
+                                                            <th>Dernière connexion</th>
                                                             <th class="text-end">Actions</th>
                                                         </tr>
                                                     </thead>    
@@ -176,10 +177,20 @@ $statuts = [
                                                                     </span>
                                                                 </td>
                                                                 <td><?= date('d/m/Y', strtotime($u['date_creation'])) ?></td>
+                                                                <td>
+                                                                    <span class="fw-medium">
+                                                                        <?= $u['derniere_connexion'] ? date('d/m/Y H:i', strtotime($u['derniere_connexion'])) : 'Jamais' ?>
+                                                                    </span>
+                                                                </td>
                                                                 <!-- les buttons -->
-                                                                    <td class="text-end">
+                                                                    <td class="text-end"> 
                                                                         <div class="btn-group btn-group-sm"> 
                                                                             <?php if ($u['id_utilisateur'] != $_SESSION['id_utilisateur']) { ?>
+                                                                                <!-- btn modifier -->                                                                             
+                                                                                    <a href="modif_user.php?id=<?= $u['id_utilisateur'] ?>" class="btn btn-sm btn-outline-rose"
+                                                                                        title="modifier le compte" aria-label="modifier le compte">
+                                                                                        <i class="bi bi-pencil-square" aria-hidden="true"> </i>
+                                                                                    </a>
                                                                                 <!-- btn statu -->    
                                                                                     <?php if ($u['statut'] === 'actif') { ?>
                                                                                         <!-- compte actif -->

@@ -1,5 +1,18 @@
 const formulaire = document.getElementById("formu");
+const icon = document.getElementById("iconm");
+const btna = document.getElementById("affmdp");
+const cmdp = document.getElementById("loginPassword");
 
+//aff mdps
+function affmdp(){
+    if(btna.checked){
+        icon.classList.add("bi-unlock-fill");
+        cmdp.type = 'text';
+    }else{
+        icon.classList.remove("bi-unlock-fill");
+        cmdp.type = 'password';
+    }
+}
 
 //fnc afficher les erreur 
 function affe(input, message) {
@@ -46,3 +59,5 @@ formulaire.addEventListener("submit", function (event) {
         formulaire.submit();
     }
 });
+
+btna.addEventListener("change", affmdp);

@@ -9,7 +9,7 @@ class pharmacieC{
             return $liste;
         }catch(Exception $e){
             die("Erreur: ".$e->getMessage());
-        }
+        } 
     }
 
     public function addPharmacie($f){
