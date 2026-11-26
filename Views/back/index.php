@@ -2,6 +2,11 @@
 $pageTitle = "Accueil Admin";
 $currentPage = "index";
 require_once '../../Controllers/front/includes/session.php';
+// admin kahaw ichouf page
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: ../front/login.php');
+    exit;
+} 
 ?>
 
 <!DOCTYPE html>

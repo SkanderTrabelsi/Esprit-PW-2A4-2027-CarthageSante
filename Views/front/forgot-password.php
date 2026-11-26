@@ -1,6 +1,18 @@
 <?php
 $pageTitle = "mpds oublier";
 $currentPage = "forgot-password";
+
+require_once '../../Controllers/front/includes/session.php';
+require_once '../../Controllers/front/utilisateurC.php';
+
+$erreurs = [];
+$succes = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $erreurs = (new utilisateurC())->demanderReset($_POST);
+    if (empty($erreurs)) {
+        $succes = "Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +31,22 @@ $currentPage = "forgot-password";
                 <p class="login-box-msg">
                     Vous avez oublié votre mot de passe ? Ici, vous pouvez facilement obtenir un nouveau mot de passe.
                 </p>
-
+                <!-- msg err -->
+                    <?php if (!empty($erreurs)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <ul class="mb-0">
+                                <?php foreach ($erreurs as $err): ?>
+                                    <li><?= htmlspecialchars((string) $err, ENT_QUOTES, 'UTF-8') ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                <!-- msg suces -->
+                    <?php if (!empty($succes)): ?>
+                        <div class="alert alert-success" role="alert">
+                            <?= htmlspecialchars((string) $succes, ENT_QUOTES, 'UTF-8') ?>
+                        </div>
+                    <?php endif; ?>
                 <form action="" method="post" id="formu">
                     <label class="visually-hidden" for="forgotEmail">Email</label>
                     <span class="err "></span>

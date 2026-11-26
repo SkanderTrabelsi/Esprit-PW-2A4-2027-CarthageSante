@@ -24,7 +24,7 @@ if ($user['role'] === 'medecin') {
     $pharmacieCtrl = new pharmacieC();
     $pro = $pharmacieCtrl->affPharmacie($_SESSION['id_utilisateur']);
 }
-
+ 
 //couleurs et nom mta les role
 $roles = [
     'admin' => ['Administrateur', 'danger'],
@@ -333,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                             <label class="form-check-label" for="profil-est_de_garde">Pharmacie de garde</label>
                                                         </div>
                                                     </div>
-                                                <?php } ?>
+                                                    <?php } ?>
                                                 <div class="col-12">
                                                     <button type="submit" class="btn btn-submit w-auto px-5">
                                                         Enregistrer les modifications

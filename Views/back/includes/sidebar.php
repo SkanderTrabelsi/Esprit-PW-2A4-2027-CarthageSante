@@ -80,9 +80,9 @@ function navActive($page, $currentPage) {
               </a>
             </li>
             <li class="nav-item">
-              <a href="add_admin.php" class="nav-link">
+              <a href="add_user.php" class="nav-link">
                 <i class="nav-icon bi bi-circle"></i>
-                <p>Ajouter un Admin</p>
+                <p>Ajouter un Utilisateur</p>
               </a>
             </li>
             </li>

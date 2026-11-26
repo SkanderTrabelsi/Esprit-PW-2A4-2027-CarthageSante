@@ -1,28 +1,47 @@
 const formulaire = document.getElementById("formu");
-//select mta3 role
+//select mta3 role et aff mdps
 const role = document.getElementById("registerRole");
-//les div
+const icnm = document.getElementById("iconm");
+const icnn = document.getElementById("iconn");
+const btna = document.getElementById("affmdp");
+const nmdp = document.getElementById("registerPassword");
+const cmdp = document.getElementById("registerCPassword");
+//les div 
 const dcomunmf = document.getElementById("champsPro");
 const dm = document.getElementById("champsMedecin");
 const df = document.getElementById("champsPharmacie");
+const da = document.getElementById("champsAdmin") ?? "";
 
 
 //fnc activ desactiv les champs pro
 function toggleChampsPro() {
-    console.log("role.value au chargement :", JSON.stringify(role.value));
     if (role.value === "medecin" || role.value === "pharmacie") {
         dcomunmf.classList.remove("d-none");
         if(role.value === "medecin"){
             dm.classList.remove("d-none");
             df.classList.add("d-none");
+            if (da !== ""){
+                da.classList.add("d-none");
+            }
         }else{
             df.classList.remove("d-none");
             dm.classList.add("d-none");
+            if (da !== ""){
+                da.classList.add("d-none");
+            }
         }
-    } else {
+    }else if(role.value === 'admin'){
+        da.classList.remove("d-none");
+        df.classList.add("d-none");
+        dm.classList.add("d-none");
+        dcomunmf.classList.add("d-none");
+    }else {
         dcomunmf.classList.add("d-none");
         dm.classList.add("d-none");
         df.classList.add("d-none");
+        if (da !== ""){
+            da.classList.add("d-none");
+        }
     }
 }
 
@@ -206,7 +225,21 @@ formulaire.addEventListener("submit", function (event) {
         formulaire.submit();
     }
 });
+//aff mdps
+function affmdp(){
+    if(btna.checked){
+        icnm.classList.add("bi-unlock-fill");
+        icnn.classList.add("bi-unlock-fill");
+        nmdp.type = 'text';
+        cmdp.type = 'text';
+    }else{
+        icnm.classList.remove("bi-unlock-fill");
+        icnn.classList.remove("bi-unlock-fill");
+        nmdp.type = 'password';
+        cmdp.type = 'password';
+    }
+}
 
-
+btna.addEventListener("change", affmdp);
 role.addEventListener("change", toggleChampsPro);
 toggleChampsPro();

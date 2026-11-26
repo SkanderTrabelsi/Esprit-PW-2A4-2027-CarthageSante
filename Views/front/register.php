@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="input-group mb-3">
                             <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe"/>
                             <div class="input-group-text">
-                                <span class="bi bi-lock-fill"></span>
+                                <span id="iconm" class="bi bi-lock-fill"></span>
                             </div>
                         </div>
                         <label class="visually-hidden" for="registerCPassword">ConfirmerMotDePasse</label>
@@ -85,9 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="input-group mb-3">
                             <input id="registerCPassword" name="Cpassword" type="password" class="form-control" placeholder="Confirmer le Mot De Passe" />
                             <div class="input-group-text">
-                                <span class="bi bi-lock-fill"></span>
+                                <span id="iconn" class="bi bi-lock-fill"></span>
                             </div>
                         </div>
+                        <!-- aff mot de pass -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="affmdp">
+                                <label class="form-check-label" for="affmdp">Afficher le mot de passe</label>
+                            </div>
                         <label class="visually-hidden" for="registerTelephone">Telephone</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
@@ -207,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="conditions" name="conditions" />
                                 <label class="form-check-label" for="conditions">
-                                    J'accepte les <a href="#">terms</a>
+                                    J'accepte les <a href="terms.php" target="_blank">Conditions</a>
                                 </label>
                             </div>
                         </div>
@@ -224,9 +229,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="social-auth-links text-center mb-3 d-grid gap-2">
                     <p>- OU -</p>
-                    <a href="#" class="btn btn-primary">
-                        <i class="bi bi-facebook me-2"></i> S'inscrire avec Facebook
-                    </a>
                     <a href="#" class="btn btn-danger">
                         <i class="bi bi-google me-2"></i> S'inscrire avec Google
                     </a>

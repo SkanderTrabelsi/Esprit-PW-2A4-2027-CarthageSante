@@ -16089,3 +16089,46 @@ fieldset legend {
     display: none !important;
   }
 }
+
+.btn-outline-rose {
+  color: #d63384;
+  border-color: #d63384;
+}
+
+.btn-outline-rose:hover,
+.btn-outline-rose:focus,
+.btn-outline-rose:active {
+  color: #ffffff;
+  background-color: #d63384;
+  border-color: #d63384;
+}
+
+.avatar-preview-box {
+    width: 84px;
+    height: 84px;
+}
+
+.avatar-preview-img,
+.avatar-preview-placeholder {
+    width: 84px;
+    height: 84px;
+    border: 3px solid var(--bs-primary);
+    box-shadow: var(--bs-box-shadow-sm);
+}
+
+.avatar-preview-img {
+    object-fit: cover;
+    object-position: center;
+    background-color: var(--bs-body-bg);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.avatar-preview-img:hover {
+    transform: scale(1.03);
+    border-color: #c09868;
+}
+
+.avatar-preview-placeholder {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+}

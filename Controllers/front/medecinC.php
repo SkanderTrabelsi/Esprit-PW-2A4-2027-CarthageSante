@@ -30,7 +30,7 @@ class medecinC{
         }catch(Exception $e){
             die("Error: ".$e->getMessage());
         }
-    }
+    } 
 
     public function removeMedecin($id){
         $db = config::getConnexion();
@@ -124,7 +124,7 @@ class medecinC{
             $req->execute([
                 ":id" => $id
             ]);
-            return $req-> fetch();
+            return $req-> fetch(); 
         }catch(Exception $e){
             die("Erreur ".$e->getMessage());
         }
