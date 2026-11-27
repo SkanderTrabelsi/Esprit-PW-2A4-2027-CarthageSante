@@ -5,12 +5,22 @@ require_once '../../Controllers/front/includes/session.php';
 require_once '../../Controllers/front/utilisateurC.php';
 
 $erreurs = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$emailGoogle = $_SESSION['email_google'] ?? '';   // email venu de la page connexion
+unset($_SESSION['email_google']);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $utilisateurCtrl = new utilisateurC();
-    $erreurs = $utilisateurCtrl->inscription($_POST, $_FILES,false);
-    if (empty($erreurs)) {
-        header("Location: login.php?inscrit=1");
-        exit;
+    if (isset($_POST['credential'])) {
+        $erreurs = $utilisateurCtrl->connexionGoogle($_POST, true);
+        if (empty($erreurs)) {
+            header("Location: index.php");
+            exit;
+        }
+    } else {
+        $erreurs = $utilisateurCtrl->inscription($_POST, $_FILES,false);
+        if (empty($erreurs)) {
+            header("Location: login.php?inscrit=1");
+            exit;
+        }
     }
 }
 ?>
@@ -39,8 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </ul>
                         </div>
                     <?php endif; ?>
-
-                <form action="" method="post" id="formu" enctype="multipart/form-data">
+                    <!-- choix si le compte existe deja (inscription Google) -->
+                    <?php if (isset($_POST['credential']) && !empty($erreurs)): ?>
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="register.php" class="btn btn-outline-secondary">Refaire l'inscription</a>
+                            <a href="login.php" class="btn btn-primary">Se connecter avec cet email</a>
+                        </div>
+                    <?php endif; ?>
+                <form action="" method="post" id="formu" enctype="multipart/form-data" autocomplete="off">
                     <!-- champs en commun pour tous les utilisateurs -->
                         <label class="visually-hidden" for="registerName">Nom</label>
                         <span class="err "></span>
@@ -65,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="visually-hidden" for="registerEmail">Email</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerEmail" name="email" type="text" class="form-control" placeholder="Email" 
-                                    value="<?= htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            <input id="registerEmail" name="email" type="text" class="form-control" placeholder="Email" autocomplete="off"
+                                    value="<?= htmlspecialchars($_POST['email'] ?? $emailGoogle, ENT_QUOTES, 'UTF-8') ?>"
                             />
                             <div class="input-group-text">
                                 <span class="bi bi-envelope"></span>
@@ -75,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="visually-hidden" for="registerPassword">MotDePasse</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe"/>
+                            <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe" autocomplete="new-password"/>
                             <div class="input-group-text">
                                 <span class="bi bi-lock-fill"></span>
                             </div>
@@ -83,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="visually-hidden" for="registerCPassword">ConfirmerMotDePasse</label>
                         <span class="err "></span>
                         <div class="input-group mb-3">
-                            <input id="registerCPassword" name="Cpassword" type="password" class="form-control" placeholder="Confirmer le Mot De Passe" />
+                            <input id="registerCPassword" name="Cpassword" type="password" class="form-control" placeholder="Confirmer le Mot De Passe" autocomplete="new-password" />
                             <div class="input-group-text">
                                 <span class="bi bi-lock-fill"></span>
                             </div>
@@ -227,9 +243,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a href="#" class="btn btn-primary">
                         <i class="bi bi-facebook me-2"></i> S'inscrire avec Facebook
                     </a>
-                    <a href="#" class="btn btn-danger">
+                    <div id="g_id_onload"
+                     data-client_id="<?= htmlspecialchars(config::env('GOOGLE_CLIENT_ID'), ENT_QUOTES, 'UTF-8') ?>"
+                     data-login_uri="<?= (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] ?>"
+                     data-ux_mode="redirect"
+                    data-auto_prompt="false"></div>
+                        <div class="position-relative mx-auto" style="width:300px; height:40px;">
+                        <button type="button" class="btn btn-danger w-100 h-100">
                         <i class="bi bi-google me-2"></i> S'inscrire avec Google
-                    </a>
+                        </button>
+                        <div class="g_id_signin" data-type="standard" data-size="large" data-width="300"
+                        style="position:absolute; top:0; left:0; width:300px; height:40px; overflow:hidden; opacity:0.01;"></div>
+                    </div>
                 </div>
                 <!-- /.social-auth-links -->
 
@@ -243,6 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <script src="../assets/js/register.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     
 

@@ -441,7 +441,7 @@ class utilisateurC{
 
     public function connexion(array $post): array{
         $erreurs = [];
-
+        unset($_SESSION['email_google']);   // on efface l'ancien email memorise
         $email = trim($post['email'] ?? '');
         $password = (string) ($post['password'] ?? '');
 
@@ -458,7 +458,13 @@ class utilisateurC{
         }
 
         $user = $this->affutilisateurmail($email);
-        if(!$user || !password_verify($password, $user['mot_de_passe_hash']) ){
+        if(!$user){
+            // aucun compte avec cet email
+            $_SESSION['email_google'] = $email;   // pour pre-remplir l'inscription
+            $erreurs[] = "Il n'y a pas de compte lie a l'email " . $email . ".";
+            return $erreurs;
+        }
+        if(!password_verify($password, $user['mot_de_passe_hash'])){
             $erreurs[] = "Email ou mot de passe incorrect.";
             return $erreurs;
         }
@@ -470,7 +476,11 @@ class utilisateurC{
             $erreurs[] = "Votre compte est suspendu.";
             return $erreurs;
         }
+        $this->ouvrirSession($user);
 
+        return [];
+    }
+    private function ouvrirSession($user){
         session_regenerate_id(true);
         $_SESSION['id_utilisateur'] = (int) $user['id_utilisateur'];
         $_SESSION['role'] = $user['role'];
@@ -483,9 +493,78 @@ class utilisateurC{
             $admin = (new adminC())->affAdmin((int) $user['id_utilisateur']);
             $_SESSION['niveau_acces'] = $admin['niveau_acces'];
         }
-
-        return [];
     }
+
+   public function connexionGoogle(array $post, $inscription = false): array{
+    $erreurs = [];
+
+    // 1) Google doit avoir envoye le jeton et le code de securite
+    if (!isset($post['credential']) || !isset($post['g_csrf_token']) || !isset($_COOKIE['g_csrf_token'])) {
+        $erreurs[] = "Echec de la connexion Google.";
+        return $erreurs;
+    }
+    // le code du formulaire doit etre le meme que celui du cookie
+    if ($post['g_csrf_token'] !== $_COOKIE['g_csrf_token']) {
+        $erreurs[] = "Echec de la connexion Google.";
+        return $erreurs;
+    }
+
+    // 2) on demande a Google de verifier le jeton
+    $reponse = @file_get_contents("https://oauth2.googleapis.com/tokeninfo?id_token=" . urlencode($post['credential']));
+    if ($reponse === false) {
+        $erreurs[] = "Echec de la connexion Google.";
+        return $erreurs;
+    }
+    $g = json_decode($reponse, true);   // tableau avec email, given_name, family_name...
+
+    // 3) le jeton doit etre pour notre site et l'email doit etre verifie
+    if ($g['aud'] !== config::env('GOOGLE_CLIENT_ID')) {
+        $erreurs[] = "Echec de la connexion Google.";
+        return $erreurs;
+    }
+    if ($g['email_verified'] !== 'true') {
+        $erreurs[] = "Votre email Google n'est pas verifie.";
+        return $erreurs;
+    }
+
+    // 4) est ce que cet email existe deja dans notre base ?
+    $user = $this->emailexiste($g['email']);
+    if ($inscription && $user) {
+    $erreurs[] = "Cet email a deja ete utilise pour creer un compte.";
+    return $erreurs;
+    }
+
+    if (!$user) {
+        // premiere connexion : on cree un compte patient
+        $prenom = 'Utilisateur';
+        if (isset($g['given_name'])) {
+            $prenom = $g['given_name'];
+        }
+        $nom = '-';
+        if (isset($g['family_name'])) {
+            $nom = $g['family_name'];
+        }
+        $mdpAleatoire = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+
+        $u = new utilisateur($nom, $prenom, $g['email'], $mdpAleatoire, null, 'assets/uploads/default-avatar.svg', 'patient');
+        $this->addUtilisateur($u);
+        $user = $this->affutilisateurmail($g['email']);
+    }
+
+    // 5) meme controle de statut que la connexion normale
+    if ($user['statut'] === 'en_attente') {
+        $erreurs[] = "Votre compte est en cours de validation.";
+        return $erreurs;
+    }
+    if ($user['statut'] === 'suspendu') {
+        $erreurs[] = "Votre compte est suspendu.";
+        return $erreurs;
+    }
+
+    // 6) tout est bon : on ouvre la session
+    $this->ouvrirSession($user);
+    return $erreurs;   // tableau vide = pas d'erreur
+}
 
     public function deconnexion(){
         $_SESSION = [];
