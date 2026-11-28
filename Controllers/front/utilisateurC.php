@@ -45,12 +45,27 @@ class utilisateurC{
     public function removeUtilisateur($id){
         $db = config::getConnexion();
         try{
+            $user = $this->affUtilisateur($id);
             $req = $db->prepare("DELETE FROM `utilisateurs` WHERE id_utilisateur = :id");
             $req->execute([
                 ":id" => $id
             ]);
+            //el compte tfasekh donc nfas5ou el photo
+            if ($user) {
+                $this->supprimerPhoto($user['photo_profil_url']);
+            }
         }catch(Exception $e){
             die("Error: ".$e->getMessage());
+        }
+    }
+
+    private function supprimerPhoto($chemin){
+        if (!str_starts_with((string) $chemin, 'assets/uploads/profils/')) {
+            return;
+        }
+        $fichier = __DIR__ . '/../../Views/assets/uploads/profils/' . basename($chemin);
+        if (is_file($fichier)) {
+            unlink($fichier);
         }
     }
 
@@ -134,6 +149,10 @@ class utilisateurC{
                 ":i"  => $photo,
                 ":id" => $id
             ]);
+            //photo jdida tsajlet donc nfas5ou el 9dima
+            if ($photoEnvoyee) {
+                $this->supprimerPhoto($userActuel['photo_profil_url']);
+            }
             //mettre a jour info fel session si le compte qui a fais la modif et le meme connecter
             if ($_SESSION['id_utilisateur'] === $id) {
                 $_SESSION['nom'] = $nom;
