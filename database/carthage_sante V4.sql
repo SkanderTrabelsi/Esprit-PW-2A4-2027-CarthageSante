@@ -179,3 +179,41 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- --------------------------------------------------------
+-- Structure de la table `posts`
+-- --------------------------------------------------------
+CREATE TABLE `posts` (
+  `id_post` int(11) NOT NULL AUTO_INCREMENT,
+  `id_utilisateur` int(11) NOT NULL,
+  `contenu` TEXT NOT NULL,
+  `type` enum('question','information') NOT NULL,
+  `date_publication` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `statut` enum('public','modere') NOT NULL DEFAULT 'public',
+  PRIMARY KEY (`id_post`),
+  KEY `idx_posts_utilisateur` (`id_utilisateur`),
+  CONSTRAINT `fk_posts_utilisateur`
+    FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateurs` (`id_utilisateur`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- Structure de la table `reponses_post`
+-- --------------------------------------------------------
+CREATE TABLE `reponses_post` (
+  `id_reponse_post` int(11) NOT NULL AUTO_INCREMENT,
+  `id_post` int(11) NOT NULL,
+  `id_utilisateur` int(11) NOT NULL,
+  `contenu` TEXT NOT NULL,
+  `date_reponse` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_reponse_post`),
+  KEY `idx_reponses_post` (`id_post`),
+  KEY `idx_reponses_utilisateur` (`id_utilisateur`),
+  CONSTRAINT `fk_reponses_post`
+    FOREIGN KEY (`id_post`) REFERENCES `posts` (`id_post`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_reponses_utilisateur`
+    FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateurs` (`id_utilisateur`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
