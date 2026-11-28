@@ -70,6 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $succes = "Mot de passe mis à jour.";
             }
         }
+    //idha mise a jour 2fa
+        elseif ($_POST['form_type'] === '2fa') {
+            $erreurs = $utilisateurCtrl->update2FA($_SESSION['id_utilisateur'], $_POST);
+            if (empty($erreurs)) {
+                $user = $utilisateurCtrl->affUtilisateur($_SESSION['id_utilisateur']);
+                $succes = "Double authentification mise à jour.";
+            }
+        }
     //idha supresion compte
         elseif ($_POST['form_type'] === 'supprimer_compte') {
             (new utilisateurC())->removeUtilisateur($_SESSION['id_utilisateur']);
@@ -333,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                             <label class="form-check-label" for="profil-est_de_garde">Pharmacie de garde</label>
                                                         </div>
                                                     </div>
-                                                    <?php } ?>
+                                                    <?php } ?> 
                                                 <div class="col-12">
                                                     <button type="submit" class="btn btn-submit w-auto px-5">
                                                         Enregistrer les modifications
@@ -378,6 +386,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </div>
                                         </form>
                                     </div>
+<!-- Formulaire 2FA -->
+<div class="contact-form-card mt-4">
+    <h2>Double authentification (2FA)</h2>
+    <p>Ajoutez une sécurité supplémentaire lors de votre connexion.</p>
+
+    <form action="" method="post">
+        <input type="hidden" name="form_type" value="2fa">
+
+        <div class="mb-3">
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" role="switch"
+                       id="a2f_email" name="a2f_email" value="1"
+                       <?= !empty($user['a2f_email']) ? 'checked' : '' ?>>
+                <label class="form-check-label" for="a2f_email">
+                    Code de vérification par email (<?= htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') ?>)
+                </label>
+            </div>
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch"
+                       id="a2f_totp" name="a2f_totp" value="1"
+                       <?= (!empty($user['a2f_totp']) || (!empty($_POST['a2f_totp']) && empty($user['a2f_totp']))) ? 'checked' : '' ?>>
+                <label class="form-check-label" for="a2f_totp">
+                    Application d'authentification (Google Authenticator)
+                </label>
+            </div>
+        </div>
+
+        <?php if (!empty($_POST['a2f_totp']) && empty($user['a2f_totp']) && !empty($_SESSION['a2f_setup_secret'])): ?>
+            <div id="bloc-totp-setup" class="border rounded-2 p-3 mb-3 bg-body-tertiary">
+                <p class="small mb-2">
+                    Scannez ce QR code ou saisissez la clé secrète dans <strong>Google Authenticator</strong>
+                    (compte : <code><?= htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') ?></code>) :
+                </p>
+                <div class="mb-2 text-center">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode('otpauth://totp/Carthage%20Sante:' . rawurlencode($user['email']) . '?secret=' . $_SESSION['a2f_setup_secret'] . '&issuer=Carthage%20Sante') ?>"
+                         alt="QR Code Google Authenticator" class="img-thumbnail">
+                </div>
+                <div class="mb-3 text-center">
+                    <code class="fs-6 user-select-all"><?= htmlspecialchars($_SESSION['a2f_setup_secret'], ENT_QUOTES, 'UTF-8') ?></code>
+                </div>
+                <label class="form-label small" for="code_totp_verif">
+                    Entrez le code à 6 chiffres généré par l'application pour confirmer :
+                </label>
+                <input type="text" class="form-control" id="code_totp_verif" name="code_totp_verif"
+                       maxlength="6" inputmode="numeric" placeholder="123456">
+            </div>
+        <?php elseif (!empty($user['a2f_totp'])): ?>
+            <div class="mb-3">
+                <span class="badge text-bg-success">Google Authenticator activé</span>
+            </div>
+        <?php endif; ?>
+
+        <button type="submit" class="btn btn-submit w-auto px-5">
+            Enregistrer les préférences 2FA
+        </button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const switchTotp = document.getElementById("a2f_totp");
+    const blocTotp = document.getElementById("bloc-totp-setup");
+    if (switchTotp && blocTotp) {
+        switchTotp.addEventListener("change", function () {
+            blocTotp.classList.toggle("d-none", !switchTotp.checked);
+        });
+    }
+});
+</script>
                                 </div>
 
                             <!-- Zone de danger -->

@@ -4,6 +4,7 @@ const role = document.getElementById("registerRole");
 const icnm = document.getElementById("iconm");
 const icnn = document.getElementById("iconn");
 const btna = document.getElementById("affmdp");
+const btnGen = document.getElementById('btnGenMdp');
 const nmdp = document.getElementById("registerPassword");
 const cmdp = document.getElementById("registerCPassword");
 //les div 
@@ -11,8 +12,10 @@ const dcomunmf = document.getElementById("champsPro");
 const dm = document.getElementById("champsMedecin");
 const df = document.getElementById("champsPharmacie");
 const da = document.getElementById("champsAdmin") ?? "";
-
-
+//localis auto
+const btnLocaliser = document.getElementById("btnLocaliser");
+const statusLocalisation = document.getElementById("statusLocalisation");
+ 
 //fnc activ desactiv les champs pro
 function toggleChampsPro() {
     if (role.value === "medecin" || role.value === "pharmacie") {
@@ -173,11 +176,21 @@ formulaire.addEventListener("submit", function (event) {
             affe(ville, "");
         }
 
-        if(hor.value.trim() === ""){
-            affe(hor,"Les horaires sont obligatoires");
+        //formatage et verif haoraire
+        //controle saisie jours et heures pro
+        const joursCoches = formulaire.querySelectorAll('input[name="jours[]"]:checked');
+        const hDeb = document.getElementById("heure_debut");
+        const hFin = document.getElementById("heure_fin");
+        const blocHor = document.getElementById("j_Lun").closest(".input-group");
+
+        if (joursCoches.length === 0 || hDeb.value === "" || hFin.value === "") {
+            affe(blocHor, "Choisissez au moins un jour et les horaires.");
             frmv = false;
-        }else {
-            affe(hor, "");
+        } else {
+            affe(blocHor, "");
+            const premierJour = joursCoches[0].value;
+            const dernierJour = joursCoches[joursCoches.length - 1].value;
+            hor.value = `(${premierJour} / ${dernierJour} , ${hDeb.value} / ${hFin.value})`;
         }
 
         if(lat.value.trim() === ""){
@@ -240,6 +253,99 @@ function affmdp(){
     }
 }
 
+function genererMotDePasse(longeur) {
+    const maj = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const min = "abcdefghijklmnopqrstuvwxyz";
+    const chiffres = "0123456789";
+    const speciaux = "!@#$%&*?_-";
+    const tous = maj + min + chiffres + speciaux;
+
+    const aleatoire = (str) => {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        return str[array[0] % str.length];
+    };
+
+    const mdp = [
+        aleatoire(maj),
+        aleatoire(min),
+        aleatoire(chiffres),
+        aleatoire(speciaux),
+    ];
+
+    for (let i = mdp.length; i < longeur; i++) {
+        mdp.push(aleatoire(tous));
+    }
+
+    for (let i = mdp.length - 1; i > 0; i--) {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        const j = array[0] % (i + 1);
+        [mdp[i], mdp[j]] = [mdp[j], mdp[i]];
+    }
+
+    return mdp.join("");
+}
+
+function localiserClient() {
+    const lat = document.getElementById("registerLatitude");
+    const long = document.getElementById("registerLongitude");
+    const ville = document.getElementById("registerVille");
+    const adr = document.getElementById("registerAdresse");
+
+    if (!navigator.geolocation) {
+        statusLocalisation.textContent = "Géolocalisation non supportée.";
+        return;
+    }
+
+    statusLocalisation.textContent = "Localisation en cours...";
+
+    navigator.geolocation.getCurrentPosition(function (pos) {
+        const latitude = pos.coords.latitude.toFixed(6);
+        const longitude = pos.coords.longitude.toFixed(6);
+
+        lat.value = latitude;
+        affe(lat, "");
+        long.value = longitude;
+        affe(long, "");
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`, {
+            headers: { "Accept-Language": "fr" }
+        })
+        .then(function (res) {
+            return res.json();
+        })
+        .then(function (data) {
+            const a = data.address || {};
+            const villeTrouvee = a.city || a.town || a.village || a.state || "";
+            const adrTrouvee = [a.house_number, a.road, a.suburb].filter(Boolean).join(", ");
+
+            if (villeTrouvee) {
+                ville.value = villeTrouvee;
+                affe(ville, "");
+            }
+            if (adrTrouvee) {
+                adr.value = adrTrouvee;
+                affe(adr, "");
+            }
+            statusLocalisation.textContent = "Position récupérée.";
+        })
+        .catch(function () {
+            statusLocalisation.textContent = "Coordonnées récupérées (adresse non trouvée).";
+        });
+    }, function () {
+        statusLocalisation.textContent = "Impossible de récupérer la position.";
+    });
+}
+
 btna.addEventListener("change", affmdp);
 role.addEventListener("change", toggleChampsPro);
 toggleChampsPro();
+btnGen.addEventListener("click", function () {
+    const nouveauMdp = genererMotDePasse(12);
+    nmdp.value = nouveauMdp;
+    cmdp.value = nouveauMdp;
+    btna.checked = true;
+    affmdp();
+});
+btnLocaliser.addEventListener("click", localiserClient);

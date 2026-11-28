@@ -259,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </div>
                                     <div >
                                         <div class="d-grid gap-2">
-                                            <button type="submit" class="btn btn-primary">Cree le compte admin</button>
+                                            <button type="submit" class="btn btn-primary">Cree le compte</button>
                                         </div>
                                     </div>
                                     </form>

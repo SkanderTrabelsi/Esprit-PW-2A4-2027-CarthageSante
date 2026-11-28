@@ -3,6 +3,7 @@ $pageTitle = "compte pro";
 $currentPage = "demnd_pro";
 require_once '../../Controllers/front/includes/session.php';
 require_once '../../Controllers/front/utilisateurC.php';
+require_once '../../Controllers/back/statC.php';
 
 // admin kahaw ichouf page
 if (($_SESSION['role'] ?? '') !== 'admin') {
@@ -12,10 +13,13 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 //importation liste des utilisateurs lkolhom
 $uc = new utilisateurC();
 $liste = $uc->listeUtilisateur()->fetchAll();
+//parametre de l'url
+$role = $_GET['role'] ?? '';
+if (!in_array($role, ['medecin', 'pharmacie'], true)) {
+    $role = '';
+}
 //liste juste en attente 
-$demandesPro = array_filter($liste, function ($u) {
-    return ($u['statut'] === 'en_attente');
-});
+$demandesPro = (new statC())->filtrer($liste, $role, 'en_attente');
 
 // suppression (modal)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_supprimer'])) {
@@ -23,7 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_supprimer'])) {
     if ($idSuppr > 0 ) {
         (new utilisateurC())->removeUtilisateur($idSuppr);
     }
-    header('Location: demnd_pro.php');
+    //maydhaayach lees param de url aprss action
+    header('Location: demnd_pro.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     exit;
 }
 
@@ -34,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['statut']=== 'actif'   ) {
     if ($idmodif > 0  ) {
         (new utilisateurC())->updateUtilisateurStatut($idmodif, "actif");
     }
-    header('Location: demnd_pro.php');
+    //maydhaayach lees param de url aprss action
+    header('Location: demnd_pro.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     exit;
 }
 
@@ -71,6 +77,12 @@ $statuts = [
                         <div class="row">
                             <div class="col-sm-6">
                                 <h1 class="mb-0 fs-3">demande de compte pro</h1>
+                                <?php if ($role !== '') { ?>
+                                    <p class="text-body-secondary mb-0">
+                                        Filtre : rôle : <?= htmlspecialchars($roles[$role][0], ENT_QUOTES, 'UTF-8') ?>
+                                        - <a href="demnd_pro.php">Réinitialiser le filtre</a>
+                                    </p>
+                                <?php } ?>
                             </div>
                             <div class="col-sm-6">
                                 <nav aria-label="breadcrumb">
@@ -115,9 +127,9 @@ $statuts = [
                                                         <!-- filtre des roles -->
                                                             <select id="user-role-filter" class="form-select form-select-sm w-auto"
                                                                 aria-label="Filter by role">
-                                                                <option value="all" selected>tous les rôles</option>
-                                                                <option value="medecin">Medecin</option>
-                                                                <option value="pharmacie">Pharmacie</option>
+                                                                <option value="all" <?= $role === '' ? 'selected' : '' ?>>tous les rôles</option>
+                                                                <option value="medecin" <?= $role === 'medecin' ? 'selected' : '' ?>>Medecin</option>
+                                                                <option value="pharmacie" <?= $role === 'pharmacie' ? 'selected' : '' ?>>Pharmacie</option>
                                                             </select>
                                                     </div>
                                                 </div>

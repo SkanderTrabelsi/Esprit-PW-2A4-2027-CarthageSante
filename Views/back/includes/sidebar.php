@@ -41,34 +41,19 @@ function navActive($page, $currentPage) {
       <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" data-accordion="false" id="navigation">
         <!--begin: dashboard-->
           <li class="nav-item">
-            <a href="#" class="nav-link active">
+            <a href="index.php" class="nav-link active">
               <i class="nav-icon bi bi-speedometer"></i>
               <p>
-                Dashboard
-                <i class="nav-arrow bi bi-chevron-right"></i>
+                Tableau de bord
               </p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="./index.php" class="nav-link active">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Dashboard v1</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="./index.php" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Dashboard v2</p>
-                </a>
-              </li>
-            </ul>
           </li>
         <li class="nav-header">PAGES</li>
         <!--begin: users-->
         <li class="nav-item">
           <a href="#" class="nav-link">
             <i class="nav-icon bi bi-people"></i>
-            <p>Users
+            <p>Utilisateurs
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
           </a>

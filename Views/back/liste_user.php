@@ -3,6 +3,7 @@ $pageTitle = "Liste des utilisateurs";
 $currentPage = "liste_user";
 require_once '../../Controllers/front/includes/session.php';
 require_once '../../Controllers/front/utilisateurC.php';
+require_once '../../Controllers/back/statC.php';
 
 // admin kahaw ichouf page
 if (($_SESSION['role'] ?? '') !== 'admin') {
@@ -16,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_supprimer'])) {
     if ($idSuppr > 0 ) {
         (new utilisateurC())->removeUtilisateur($idSuppr);
     }
-    header('Location: liste_user.php');
+    //pour garder les filtre apres recharge de la page si il ya 
+    header('Location: liste_user.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     exit;
 }
 
@@ -29,13 +31,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ( $_POST['statut']=== 'actif' || $_
     }else if ($idmodif > 0 && $_POST['statut']=== 'suspendu' ) {
         (new utilisateurC())->updateUtilisateurStatut($idmodif, "suspendu");
     }
-    header('Location: liste_user.php');
+    //pour garder les filtre apres recharge de la page si il ya
+    header('Location: liste_user.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     exit;
 }
 
 //importation liste des utilisateurs lkolhom
 $uc = new utilisateurC();
-$liste = $uc->listeUtilisateur()->fetchAll(); 
+$toutes = $uc->listeUtilisateur()->fetchAll();
+
+//parametres eli fel url
+$role = $_GET['role'] ?? '';
+$statut = $_GET['statut'] ?? '';
+$periode = $_GET['periode'] ?? '';
+if (!in_array($role, ['admin', 'patient', 'medecin', 'pharmacie'], true)) {
+    $role = '';
+}
+if (!in_array($statut, ['actif', 'en_attente', 'suspendu'], true)) {
+    $statut = '';
+}
+if ($periode !== 'semaine') {
+    $periode = '';
+}
+$liste = (new statC())->filtrer($toutes, $role, $statut, $periode);
 
 //couleurs et nom mta les role et statut
 $roles = [
@@ -49,6 +67,19 @@ $statuts = [
     'en_attente' => ['En attente', 'warning'],
     'suspendu' => ['Suspendu', 'danger']
 ];
+
+//texte du filtre actif
+$morceaux = [];
+if ($role !== '') {
+    $morceaux[] = 'rôle : ' . $roles[$role][0];
+}
+if ($statut !== '') {
+    $morceaux[] = 'statut : ' . $statuts[$statut][0];
+}
+if ($periode === 'semaine') {
+    $morceaux[] = 'créés cette semaine';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -70,6 +101,13 @@ $statuts = [
                         <div class="row">
                             <div class="col-sm-6">
                                 <h1 class="mb-0 fs-3">Liste de tous les utilisateurs</h1>
+                                <!-- ken fama filtre actif nafichiwah -->
+                                <?php if (!empty($morceaux)) { ?>
+                                    <p class="text-body-secondary mb-0">
+                                        Filtre : <?= htmlspecialchars(implode(' · ', $morceaux), ENT_QUOTES, 'UTF-8') ?>
+                                        - <a href="liste_user.php">réinitialiser le filtre</a>
+                                    </p>
+                                <?php } ?>
                             </div>
                             <div class="col-sm-6">
                                 <nav aria-label="breadcrumb">
@@ -114,11 +152,11 @@ $statuts = [
                                                         <!-- filtre des roles -->
                                                             <select id="user-role-filter" class="form-select form-select-sm w-auto"
                                                                 aria-label="Filter by role">
-                                                                <option value="all" selected>tous les rôles</option> 
-                                                                <option value="admin">Admin</option>
-                                                                <option value="patient">Patient</option>
-                                                                <option value="medecin">Medecin</option>
-                                                                <option value="pharmacie">Pharmacie</option>
+                                                                <option value="all" <?= $role === '' ? 'selected' : '' ?>>tous les rôles</option>
+                                                                <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                                                <option value="patient" <?= $role === 'patient' ? 'selected' : '' ?>>Patient</option>
+                                                                <option value="medecin" <?= $role === 'medecin' ? 'selected' : '' ?>>Medecin</option>
+                                                                <option value="pharmacie" <?= $role === 'pharmacie' ? 'selected' : '' ?>>Pharmacie</option>
                                                             </select>
                                                         <a href="add_user.php">
                                                             <button type="button" class="btn btn-sm btn-primary">
@@ -150,7 +188,7 @@ $statuts = [
                                                     <tbody>
                                                         <?php if (empty($liste)) { ?>
                                                             <tr>
-                                                                <td colspan="6" class="text-center">Aucun utilisateur à afficher</td>
+                                                                <td colspan="7" class="text-center">Aucun utilisateur à afficher</td>
                                                             </tr>
                                                         <?php } ?>
                                                         <?php foreach ($liste as $u) { ?>

@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 </ul>
                                             </div>
                                         <?php endif; ?>
-                                    <!-- msg suces -->
+                                    <!-- msg suces --> 
                                         <?php if (!empty($succes)): ?>
                                             <div class="alert alert-success mb-4" role="alert">
                                                 <?= htmlspecialchars((string) $succes, ENT_QUOTES, 'UTF-8') ?>

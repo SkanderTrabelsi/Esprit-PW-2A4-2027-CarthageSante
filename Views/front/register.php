@@ -76,6 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span class="err "></span>
                         <div class="input-group mb-3">
                             <input id="registerPassword" name="password" type="password" class="form-control" placeholder="Mot De Passe"/>
+                            <button type="button" id="btnGenMdp" class="btn btn-outline-secondary" title="Suggérer un mot de passe fort">
+                                    <i class="bi bi-magic"></i> 
+                            </button>
                             <div class="input-group-text">
                                 <span id="iconm" class="bi bi-lock-fill"></span>
                             </div>
@@ -136,6 +139,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="input-group-text"><span class="bi bi-hash"></span></div>
                             </div>
 
+                            <div class="mb-3">
+                                <button type="button" id="btnLocaliser" class="btn btn-sm btn-outline-primary w-100">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> Récupérer ma position actuelle
+                                </button>
+                                <small id="statusLocalisation" class="text-muted d-block mt-1"></small>
+                            </div>
+
                             <label class="visually-hidden" for="registerAdresse">Adresse</label>
                             <span class="err "></span>
                             <div class="input-group mb-3">
@@ -154,13 +164,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="input-group-text"><span class="bi bi-building"></span></div>
                             </div>
 
-                            <label class="visually-hidden" for="registerHoraires">Horaires</label>
+                            <?php
+                            $joursChoisis = $_POST['jours'] ?? [];
+                            $heureDebut = $_POST['heure_debut'] ?? '08:00';
+                            $heureFin   = $_POST['heure_fin'] ?? '18:30';
+                            $joursListe = [
+                                'Lun' => 'Lu',
+                                'Mar' => 'Ma',
+                                'Mer' => 'Me',
+                                'Jeu' => 'Je',
+                                'Ven' => 'Ve',
+                                'Sam' => 'Sa',
+                                'Dim' => 'Di',
+                            ];
+                            ?>
+                            <label class="form-label mb-1">Horaires</label>
+                            <input type="hidden" id="registerHoraires" name="horaires"
+                                value="<?= htmlspecialchars($_POST['horaires'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                             <span class="err "></span>
-                            <div class="input-group mb-3">
-                                <input id="registerHoraires" name="horaires" type="text" class="form-control" placeholder="Horaires (ex : Lun-Ven 08h-18h)" 
-                                    value="<?= htmlspecialchars($_POST['horaires'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                />
-                                <div class="input-group-text"><span class="bi bi-clock"></span></div>
+                            <div class="input-group border rounded-2 p-2 mb-3">
+                                <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+                                    <?php foreach ($joursListe as $val => $court): ?>
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input" type="checkbox" name="jours[]" id="j_<?= $val ?>" value="<?= $val ?>"
+                                                <?= in_array($val, $joursChoisis, true) ? 'checked' : '' ?>>
+                                            <label class="form-check-label small" for="j_<?= $val ?>" title="<?= $val ?>"><?= $court ?></label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="row g-2 w-100">
+                                    <div class="col-6">
+                                        <label class="form-label small mb-1" for="heure_debut">De</label>
+                                        <input type="time" class="form-control form-control-sm" id="heure_debut" name="heure_debut"
+                                            value="<?= htmlspecialchars($heureDebut, ENT_QUOTES, 'UTF-8') ?>">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small mb-1" for="heure_fin">À</label>
+                                        <input type="time" class="form-control form-control-sm" id="heure_fin" name="heure_fin"
+                                            value="<?= htmlspecialchars($heureFin, ENT_QUOTES, 'UTF-8') ?>">
+                                    </div>
+                                </div>
                             </div>
 
                             <label class="visually-hidden" for="registerLatitude">Latitude</label>
